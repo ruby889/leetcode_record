@@ -51,13 +51,13 @@ table {
 }
 
 .mainTable th.up {
-  background-image: url("./images/up_arrow.png");
+  background-image: url("../public/images/up_arrow.png");
 }
 .mainTable th.down {
-  background-image: url("./images/down_arrow.png");
+  background-image: url("../public/images/down_arrow.png");
 }
 .mainTable th.default {
-  background-image: url("./images/default.png");
+  background-image: url("../public/images/default.png");
 }
 
 th.up,

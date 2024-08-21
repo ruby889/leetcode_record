@@ -1,5 +1,4 @@
 import { useState } from "react";
-
 function FilterBar() {}
 
 function TableHeader({ name, onHeaderClick, order }) {
@@ -10,9 +9,9 @@ function TableHeader({ name, onHeaderClick, order }) {
       return order === true ? "up" : "down";
     }
   }
-  ordername = updateClassName(order);
+  let orderName = updateClassName(order);
   return (
-    <th scope="col" onClick={onHeaderClick} className={ordername}>
+    <th scope="col" onClick={onHeaderClick} className={orderName}>
       {name}
     </th>
   );
@@ -34,15 +33,36 @@ function TableRow({ data }) {
 
 function Table() {
   const headerCnt = 6;
-  const [data, setData] = useState([
-    ["0", "Banana", "EASY", "DONE"],
-    ["2", "nana", "MED", "ONLE"],
-  ]);
+  const temp = [
+    {
+      id: 0,
+      title: "banana",
+      difficulty: "easy",
+      status: "complete",
+      topics: ["string", "array"],
+      tags: ["leet100", "blind75"],
+    },
+    {
+      id: 1,
+      title: "nana",
+      difficulty: "med",
+      status: "tried",
+      topics: ["string"],
+      tags: ["blind75"],
+    },
+  ];
+  dataCnt = data.length;
+  const [data, setData] = useState(temp);
+  // const [data, setData] = useState([
+  //   ["0", "Banana", "EASY", "DONE"],
+  //   ["2", "nana", "MED", "ONLE"],
+  // ]);
+
   const [order, setOrder] = useState(Array(headerCnt).fill(null));
 
   function handleHeaderClick(i) {
-    sgn = order[i] ? -1 : 1;
-    dataTemp = data.slice();
+    var sgn = order[i] ? -1 : 1;
+    const dataTemp = data.slice();
     dataTemp.sort(function (a, b) {
       if (a[i] === b[i]) {
         return 0;
@@ -50,12 +70,13 @@ function Table() {
         return a[i] > b[i] ? sgn : -sgn;
       }
     });
-    order[i] = !order[i];
+    var orderTemp = Array(headerCnt).fill(null);
+    orderTemp[i] = !order[i];
     setData(dataTemp);
-    setOrder(order);
+    setOrder(orderTemp);
   }
 
-  const headers = ["No.", "Title", "Difficulty", "Status", "Category", "Tags"];
+  const headers = ["No.", "Title", "Difficulty", "Status", "Topics", "Tags"];
   return (
     <table className="mainTable">
       <thead>
@@ -68,30 +89,11 @@ function Table() {
               order={order[i]}
             />
           ))}
-          {/* <TableHeader name="No." onHeaderClick={() => handleHeaderClick(0) order={order[0]}} />
-          <TableHeader
-            name="Title"
-            onHeaderClick={() => handleHeaderClick(1)
-            }
-          />
-          <TableHeader
-            name="Difficulty"
-            onHeaderClick={() => handleHeaderClick(2)}
-          />
-          <TableHeader
-            name="Status"
-            onHeaderClick={() => handleHeaderClick(3)}
-          />
-          <TableHeader
-            name="Category"
-            onHeaderClick={() => handleHeaderClick(4)}
-          />
-          <TableHeader name="Tags" onHeaderClick={() => handleHeaderClick(5)} /> */}
         </tr>
       </thead>
       <tbody>
-        {data.map((row) => (
-          <TableRow data={row} key={row[0]} />
+        {data.map((obj) => (
+          <TableRow data={obj} key={obj.id} />
         ))}
       </tbody>
     </table>
