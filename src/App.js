@@ -1,35 +1,114 @@
 import { useState } from "react";
-function FilterSlideDown({ onComplete }) {
+function DropdownCloseEvent(event) {
+  if (!event.target.id.match("dropdownbnt")) {
+    var dropdowns = document.getElementsByClassName("dropdown-options");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.style.display === "block") {
+        openDropdown.style.display = "";
+      }
+    }
+  }
+}
+window.addEventListener("click", DropdownCloseEvent);
+
+function DropdownButton({ name, options, onSelection }) {
+  function handleClick() {
+    const id = "dropdown-options-" + name;
+    const elem = document.getElementById(id);
+    if (elem.style.display.match("block")) {
+      elem.style.display = ""; //If it has shown, hide it
+    } else {
+      elem.style.display = "block";
+    }
+
+    //Close dropdown-options in other categories
+    var dropdowns = document.getElementsByClassName("dropdown-options");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (
+        !openDropdown.id.match(id) &&
+        openDropdown.style.display.match("block")
+      ) {
+        openDropdown.style.display = "";
+      }
+    }
+  }
+
   return (
-    <div>
-      <button>HIHI</button>
+    <div className="dropdown">
+      <button
+        id={"dropdownbnt-" + name}
+        className="dropdownbnt"
+        onClick={handleClick}
+      >
+        {name}
+      </button>
+      <div id={"dropdown-options-" + name} className="dropdown-options">
+        {options.map((x) => (
+          <a href="#" key={x} onClick={() => onSelection(name, x)}>
+            {x}
+          </a>
+        ))}
+      </div>
     </div>
   );
 }
 
-function FilteredDisplay() {}
+function FilteredDisplay({ selected }) {
+  if (!(typeof selected === "object")) return;
+  return (
+    <div className="FilteredDisplay">
+      {Object.entries(selected).map(([key, value]) =>
+        value.map((tag) => (
+          <label key={key + "_" + tag} className={key + "_FilterTag"}>
+            {tag}
+            <span className="FilterTagClose"></span>
+          </label>
+        ))
+      )}
+    </div>
+  );
+}
 
 function FilterBar() {
   const options = {
     difficulty: ["Easy", "Medium", "Hard"],
     status: ["solved", "tried", "read"],
-    topics: [],
-    tags: [],
+    topics: ["string", "array", "list"],
+    tags: ["leet100", "blind75"],
   };
-  const optionKeyOrder = Object.keys(options); //Add in order
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [filter, setFilter] = useState([]);
-  function handleFilterBntClick() {
-    setIsSelecting(!isSelecting);
-  }
+  const optionKeys = Object.keys(options); //Add in order
+  const [selected, setSelected] = useState({});
+  function handleResetClick() {}
 
-  function handleFilterComplete() {}
+  function handleSelection(category, item) {
+    if (category in selected && selected[category].includes(item)) return;
+    var selectedTemp = { ...selected };
+    if (!(category in selectedTemp)) {
+      selectedTemp[category] = [];
+    }
+    selectedTemp[category].push(item);
+    setSelected(selectedTemp);
+  }
 
   return (
     <div>
-      {isSelecting && <FilterSlideDown onComplete={handleFilterComplete} />}
-      <button className="filterBnt" onClick={handleFilterBntClick}>
-        Filter
+      <div>
+        {optionKeys.map((x) => (
+          <DropdownButton
+            name={x}
+            options={options[x]}
+            onSelection={handleSelection}
+            key={x}
+          />
+        ))}
+      </div>
+      <FilteredDisplay selected={selected} />
+      <button className="ResetBnt" onClick={handleResetClick}>
+        Reset
       </button>
     </div>
   );
@@ -71,18 +150,18 @@ function TagLabel({ name }) {
 function TableRow({ data }) {
   return (
     <tr>
-      <th scope="row">{data.id}</th>
+      <th scope="row">{data.date}</th>
       <td>{data.title}</td>
       <td>{data.difficulty}</td>
       <td>{data.status}</td>
       <td>
         {data.topics.map((x) => (
-          <TopicLabel name={x} key={data.id + "_topic_" + x} />
+          <TopicLabel name={x} key={x} />
         ))}
       </td>
       <td>
         {data.tags.map((x) => (
-          <TagLabel name={x} key={data.id + "_tag_" + x} />
+          <TagLabel name={x} key={x} />
         ))}
       </td>
     </tr>
@@ -92,7 +171,7 @@ function TableRow({ data }) {
 function Table() {
   const headerCnt = 6;
   const dataStructName = [
-    "id",
+    "date",
     "title",
     "difficulty",
     "status",
@@ -101,16 +180,16 @@ function Table() {
   ];
   const dataStruct = {
     0: {
-      id: 0,
-      title: "banana",
+      date: "1/2/2024",
+      title: "0. banana",
       difficulty: "easy",
       status: "complete",
-      topics: ["string", "array"],
+      topics: ["string", "array", "list"],
       tags: ["leet100", "blind75"],
     },
     1: {
-      id: 1,
-      title: "nana",
+      date: "2/2/2024",
+      title: "11. nana",
       difficulty: "med",
       status: "tried",
       topics: ["string"],
@@ -140,9 +219,9 @@ function Table() {
     setOrder(orderTemp);
   }
 
-  const headers = ["No.", "Title", "Difficulty", "Status", "Topics", "Tags"];
+  const headers = ["Date", "Title", "Difficulty", "Status", "Topics", "Tags"];
   return (
-    <table className="mainTable">
+    <table className="maintable">
       <thead>
         <tr>
           {headers.map((x, i) => (

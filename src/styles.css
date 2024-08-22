@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-.mainTable {
+.maintable {
   margin: 0px auto;
 }
 
@@ -52,13 +52,13 @@ table {
   letter-spacing: 1px;
 }
 
-.mainTable th.up {
+.maintable th.up {
   background-image: url("../public/images/up_arrow.png");
 }
-.mainTable th.down {
+.maintable th.down {
   background-image: url("../public/images/down_arrow.png");
 }
-.mainTable th.default {
+.maintable th.default {
   background-image: url("../public/images/default.png");
 }
 
@@ -80,4 +80,73 @@ th.down {
   background-color: #f5eded;
   border-radius: 35px;
   padding: 5px 5px;
+}
+
+/*Hoverable Dropdown Menu*/
+
+.dropdown {
+  display: inline-block;
+  position: relative;
+}
+
+.dropdownbnt {
+  border: none;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  background-color: #ddd;
+}
+
+.dropdown-options {
+  display: none;
+  position: absolute;
+  overflow: auto;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.4);
+}
+
+/* .dropdown:hover .dropdown-options {
+  display: block;
+} */
+
+.dropdownbnt:hover {
+  background-color: #aeb4b8;
+}
+
+.dropdown-options a {
+  display: block;
+  color: #000000;
+  padding: 5px;
+  text-decoration: none;
+  padding: 20px 20px;
+}
+
+.dropdown-options a:hover {
+  color: #0a0a23;
+  background-color: #ddd;
+  border-radius: 5px;
+}
+
+.FilteredDisplay {
+  padding: 8px 10px;
+}
+
+.FilteredDisplay label {
+  background-color: #f5eded;
+  border-radius: 35px;
+  padding: 5px 5px;
+}
+
+.FilterTagClose:before {
+  content: "✕";
+  color: #888888;
+}
+
+.FilterTagClose {
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  padding: 0px 3px;
 }
