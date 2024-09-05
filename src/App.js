@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 function DropdownCloseEvent(event) {
-  if (!event.target.id.match("dropdownbnt")) {
-    var dropdowns = document.getElementsByClassName("dropdown-options");
+  if (!event.target.className.match("DropdownBtn")) {
+    var dropdowns = document.getElementsByClassName("DropdownOptions");
     var i;
     for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.style.display === "block") {
-        openDropdown.style.display = "";
+      var openedDropdown = dropdowns[i];
+      if (openedDropdown.style.display === "block") {
+        openedDropdown.style.display = "";
       }
     }
   }
 }
 window.addEventListener("click", DropdownCloseEvent);
 
-function DropdownButton({ name, options, onSelection }) {
+function DropdownButton({ name, options, onSelect }) {
   function handleClick() {
-    const id = "dropdown-options-" + name;
+    const id = "DropdownOptions" + name;
     const elem = document.getElementById(id);
     if (elem.style.display.match("block")) {
       elem.style.display = ""; //If it has shown, hide it
@@ -23,32 +24,28 @@ function DropdownButton({ name, options, onSelection }) {
       elem.style.display = "block";
     }
 
-    //Close dropdown-options in other categories
-    var dropdowns = document.getElementsByClassName("dropdown-options");
+    //Close DropdownOptions in other categories
+    var dropdowns = document.getElementsByClassName("DropdownOptions");
     var i;
     for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
+      var openedDropdown = dropdowns[i];
       if (
-        !openDropdown.id.match(id) &&
-        openDropdown.style.display.match("block")
+        !openedDropdown.id.match(id) &&
+        openedDropdown.style.display.match("block")
       ) {
-        openDropdown.style.display = "";
+        openedDropdown.style.display = "";
       }
     }
   }
 
   return (
-    <div className="dropdown">
-      <button
-        id={"dropdownbnt-" + name}
-        className="dropdownbnt"
-        onClick={handleClick}
-      >
+    <div className="Dropdown">
+      <button className="DropdownBtn" onClick={handleClick}>
         {name}
       </button>
-      <div id={"dropdown-options-" + name} className="dropdown-options">
+      <div id={"DropdownOptions" + name} className="DropdownOptions">
         {options.map((x) => (
-          <a href="#" key={x} onClick={() => onSelection(name, x)}>
+          <a href="#" key={x} onClick={() => onSelect(name, x)}>
             {x}
           </a>
         ))}
@@ -57,15 +54,22 @@ function DropdownButton({ name, options, onSelection }) {
   );
 }
 
-function FilteredDisplay({ selected }) {
+function FilteredDisplay({ selected, onRemove }) {
   if (!(typeof selected === "object")) return;
   return (
     <div className="FilteredDisplay">
-      {Object.entries(selected).map(([key, value]) =>
-        value.map((tag) => (
-          <label key={key + "_" + tag} className={key + "_FilterTag"}>
+      {Object.entries(selected).map(([category, tags]) =>
+        tags.map((tag, i) => (
+          <label
+            category={category + "_" + tag}
+            className={category + "_FilterTag"}
+            key={i}
+          >
             {tag}
-            <span className="FilterTagClose"></span>
+            <span
+              className="FilterTagClose"
+              onClick={() => onRemove(category, tag)}
+            ></span>
           </label>
         ))
       )}
@@ -73,52 +77,24 @@ function FilteredDisplay({ selected }) {
   );
 }
 
-function FilterBar() {
-  const options = {
-    difficulty: ["Easy", "Medium", "Hard"],
-    status: ["solved", "tried", "read"],
-    topics: ["string", "array", "list"],
-    tags: ["leet100", "blind75"],
-  };
+function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
   const optionKeys = Object.keys(options); //Add in order
-  const [selected, setSelected] = useState({});
-  function handleResetClick() {}
-
-  function handleSelection(category, item) {
-    if (category in selected && selected[category].includes(item)) return;
-    var selectedTemp = { ...selected };
-    if (!(category in selectedTemp)) {
-      selectedTemp[category] = [];
-    }
-    selectedTemp[category].push(item);
-    setSelected(selectedTemp);
-  }
-
   return (
     <div>
       <div>
-        {optionKeys.map((x) => (
+        {optionKeys.map((category) => (
           <DropdownButton
-            name={x}
-            options={options[x]}
-            onSelection={handleSelection}
-            key={x}
+            name={category}
+            options={options[category]}
+            onSelect={onSelect}
+            key={category}
           />
         ))}
       </div>
-      <FilteredDisplay selected={selected} />
-      <button className="ResetBnt" onClick={handleResetClick}>
+      <FilteredDisplay selected={selected} onRemove={onRemove} />
+      <button className="ResetBnt" onClick={onReset}>
         Reset
       </button>
-    </div>
-  );
-}
-
-function FilterDiv() {
-  return (
-    <div>
-      <FilteredDisplay />
-      <FilterBar />
     </div>
   );
 }
@@ -148,6 +124,7 @@ function TagLabel({ name }) {
 }
 
 function TableRow({ data }) {
+  if (!data) return;
   return (
     <tr>
       <th scope="row">{data.date}</th>
@@ -168,45 +145,27 @@ function TableRow({ data }) {
   );
 }
 
-function Table() {
-  const headerCnt = 6;
-  const dataStructName = [
-    "date",
-    "title",
-    "difficulty",
-    "status",
-    "topics",
-    "tags",
-  ];
-  const dataStruct = {
-    0: {
-      date: "1/2/2024",
-      title: "0. banana",
-      difficulty: "easy",
-      status: "complete",
-      topics: ["string", "array", "list"],
-      tags: ["leet100", "blind75"],
-    },
-    1: {
-      date: "2/2/2024",
-      title: "11. nana",
-      difficulty: "med",
-      status: "tried",
-      topics: ["string"],
-      tags: ["blind75"],
-    },
-  };
-  const dataCnt = Object.keys(dataStruct).length;
-  const [dataIndex, setDataIndex] = useState([...Array(dataCnt).keys()]);
+function Table({ data, dataStruct }) {
+  const headerCnt = Object.keys(dataStruct).length;
+  let dataCnt = Object.keys(data).length;
+  const [orderIndex, setOrderIndex] = useState([
+    ...Array(Object.keys(data).length).keys(),
+  ]);
   const [order, setOrder] = useState(Array(headerCnt).fill(null));
+
+  console.log("A:", data, dataCnt, "DATAINDEX:", orderIndex);
+  // useEffect(() => {
+  //   console.log("V:", dataCnt);
+  //   setOrderIndex([...Array(Object.keys(data).length).keys()]);
+  // }, [dataCnt]);
 
   function handleHeaderClick(i) {
     const sgn = order[i] ? -1 : 1;
-    const colDataName = dataStructName[i];
-    const dataTemp = dataIndex.slice();
+    const name = dataStruct[i].name;
+    const dataTemp = orderIndex.slice();
     dataTemp.sort(function (a, b) {
-      const d1 = dataStruct[a][colDataName];
-      const d2 = dataStruct[b][colDataName];
+      const d1 = data[a][name];
+      const d2 = data[b][name];
       if (d1 === d2) {
         return 0;
       } else {
@@ -215,19 +174,18 @@ function Table() {
     });
     var orderTemp = Array(headerCnt).fill(null);
     orderTemp[i] = !order[i];
-    setDataIndex(dataTemp);
+    setOrderIndex(dataTemp);
     setOrder(orderTemp);
   }
 
-  const headers = ["Date", "Title", "Difficulty", "Status", "Topics", "Tags"];
   return (
-    <table className="maintable">
+    <table className="Maintable">
       <thead>
         <tr>
-          {headers.map((x, i) => (
+          {Object.keys(dataStruct).map((i) => (
             <TableHeader
               key={i}
-              name={x}
+              name={dataStruct[i].title}
               onHeaderClick={() => handleHeaderClick(i)}
               order={order[i]}
             />
@@ -235,8 +193,8 @@ function Table() {
         </tr>
       </thead>
       <tbody>
-        {dataIndex.map((x) => (
-          <TableRow data={dataStruct[x]} key={x} />
+        {orderIndex.map((x) => (
+          <TableRow data={x in data ? data[x] : null} key={x} />
         ))}
       </tbody>
     </table>
@@ -244,11 +202,96 @@ function Table() {
 }
 
 export default function App() {
+  const dataStruct = {
+    0: { name: "date", title: "Date" },
+    1: { name: "title", title: "Title" },
+    2: { name: "difficulty", title: "Difficulty" },
+    3: { name: "status", title: "Status" },
+    4: { name: "topics", title: "Topics" },
+    5: { name: "tags", title: "Tags" },
+  };
+  const initData = {
+    0: {
+      date: "1/2/2024",
+      title: "0. banana",
+      difficulty: "Easy",
+      status: "Solved",
+      topics: ["string", "array", "list"],
+      tags: ["leet100", "blind75"],
+    },
+    1: {
+      date: "2/2/2024",
+      title: "11. nana",
+      difficulty: "Medium",
+      status: "Tried",
+      topics: ["string"],
+      tags: ["blind75"],
+    },
+  };
+  const options = {
+    difficulty: ["Easy", "Medium", "Hard"],
+    status: ["Mastered", "Solved", "Tried", "Read"],
+    topics: ["string", "array", "list"],
+    tags: ["leet100", "blind75"],
+  };
+
+  //Add data to different categories
+  const dataCategory = {};
+  for (const [category, tagArr] of Object.entries(options)) {
+    dataCategory[category] = Object.fromEntries(tagArr.map((x) => [x, []]));
+    for (const [id, thisData] of Object.entries(initData)) {
+      const tags = Array.isArray(thisData[category])
+        ? thisData[category]
+        : [thisData[category]];
+      tags.forEach((tag) => dataCategory[category][tag].push(id));
+    }
+  }
+
+  const [data, setData] = useState(initData);
+  const [selected, setSelected] = useState({});
+  function handleAddSelection(category, tag) {
+    //Update selected array
+    if (category in selected && selected[category].includes(tag)) return;
+    var selectedTemp = { ...selected };
+    if (!(category in selectedTemp)) {
+      selectedTemp[category] = [];
+    }
+    selectedTemp[category].push(tag);
+    setSelected(selectedTemp);
+
+    //Update data
+    const dataTemp = {};
+    for (const id of dataCategory[category][tag]) {
+      if (!(id in dataTemp)) dataTemp[id] = initData[id];
+    }
+    setData(dataTemp);
+  }
+
+  function handleRemoveSelection(category, tag) {
+    const selectedTemp = structuredClone(selected);
+    const i = selectedTemp[category].indexOf(tag);
+    selectedTemp[category].splice(i, 1);
+    if (!selectedTemp[category].length) {
+      delete selectedTemp[category];
+    }
+    setSelected(selectedTemp);
+  }
+
+  function handleResetSelection() {
+    setSelected({});
+  }
+
   return (
     <>
-      <h1 className="header">Leetcode Record</h1>
-      <FilterDiv />
-      <Table />
+      <h1 className="Header">Leetcode Record</h1>
+      <FilterDiv
+        options={options}
+        selected={selected}
+        onSelect={handleAddSelection}
+        onRemove={handleRemoveSelection}
+        onReset={handleResetSelection}
+      />
+      <Table data={data} dataStruct={dataStruct} />
     </>
   );
 }

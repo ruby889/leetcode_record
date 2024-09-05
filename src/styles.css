@@ -1,11 +1,11 @@
-.header {
+.Header {
   padding: 20px;
   text-align: center;
   background: #90ccc0;
   color: white;
 }
 
-.header h1 {
+.Header h1 {
   font-size: 40px;
 }
 
@@ -14,7 +14,7 @@
   text-align: center;
 }
 
-.maintable {
+.Maintable {
   margin: 0px auto;
 }
 
@@ -52,13 +52,13 @@ table {
   letter-spacing: 1px;
 }
 
-.maintable th.up {
+.Maintable th.up {
   background-image: url("../public/images/up_arrow.png");
 }
-.maintable th.down {
+.Maintable th.down {
   background-image: url("../public/images/down_arrow.png");
 }
-.maintable th.default {
+.Maintable th.default {
   background-image: url("../public/images/default.png");
 }
 
@@ -84,12 +84,12 @@ th.down {
 
 /*Hoverable Dropdown Menu*/
 
-.dropdown {
+.Dropdown {
   display: inline-block;
   position: relative;
 }
 
-.dropdownbnt {
+.DropdownBtn {
   border: none;
   border-radius: 5px;
   padding: 8px 15px;
@@ -98,7 +98,7 @@ th.down {
   background-color: #ddd;
 }
 
-.dropdown-options {
+.DropdownOptions {
   display: none;
   position: absolute;
   overflow: auto;
@@ -107,15 +107,15 @@ th.down {
   box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.4);
 }
 
-/* .dropdown:hover .dropdown-options {
+/* .Dropdown:hover .DropdownOptions {
   display: block;
 } */
 
-.dropdownbnt:hover {
+.DropdownBtn:hover {
   background-color: #aeb4b8;
 }
 
-.dropdown-options a {
+.DropdownOptions a {
   display: block;
   color: #000000;
   padding: 5px;
@@ -123,7 +123,7 @@ th.down {
   padding: 20px 20px;
 }
 
-.dropdown-options a:hover {
+.DropdownOptions a:hover {
   color: #0a0a23;
   background-color: #ddd;
   border-radius: 5px;
