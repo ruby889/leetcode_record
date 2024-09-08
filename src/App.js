@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 function DropdownCloseEvent(event) {
   if (!event.target.className.match("DropdownBtn")) {
@@ -78,7 +78,7 @@ function FilteredDisplay({ selected, onRemove }) {
 }
 
 function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
-  const optionKeys = Object.keys(options); //Add in order
+  const optionKeys = Object.keys(options); //Add in headerSort
   return (
     <div>
       <div>
@@ -99,15 +99,15 @@ function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
   );
 }
 
-function TableHeader({ name, onHeaderClick, order }) {
-  function updateClassName(order) {
-    if (order === null) {
+function TableHeader({ name, onHeaderClick, headerSort }) {
+  function updateClassName(headerSort) {
+    if (headerSort === null) {
       return "default";
     } else {
-      return order === true ? "up" : "down";
+      return headerSort === true ? "up" : "down";
     }
   }
-  let orderName = updateClassName(order);
+  let orderName = updateClassName(headerSort);
   return (
     <th scope="col" onClick={onHeaderClick} className={orderName}>
       {name}
@@ -115,86 +115,131 @@ function TableHeader({ name, onHeaderClick, order }) {
   );
 }
 
-function TopicLabel({ name }) {
-  return <label className="TopicLabel">{name}</label>;
-}
-
-function TagLabel({ name }) {
-  return <label className="TagLabel">{name}</label>;
-}
-
-function TableRow({ data }) {
-  if (!data) return;
+function CommentBlock({ data, colCnt }) {
+  if (!data.showComment) return;
   return (
-    <tr>
-      <th scope="row">{data.date}</th>
-      <td>{data.title}</td>
-      <td>{data.difficulty}</td>
-      <td>{data.status}</td>
-      <td>
-        {data.topics.map((x) => (
-          <TopicLabel name={x} key={x} />
-        ))}
-      </td>
-      <td>
-        {data.tags.map((x) => (
-          <TagLabel name={x} key={x} />
-        ))}
+    <tr className="CommentBlock">
+      <td colSpan={colCnt}>
+        <ul className="CommentBlock">
+          {data.comments.map((cmt) => (
+            <li className="CommentBlock">
+              <label className="CommentBlockDate"> {cmt.date}: </label>
+              <label className="CommentBlockState">
+                [{cmt.status} / {cmt.state}]
+              </label>
+              <label className="CommentBlockComment">{cmt.comment}</label>
+            </li>
+          ))}
+        </ul>
       </td>
     </tr>
   );
 }
 
-function Table({ data, dataStruct }) {
-  const headerCnt = Object.keys(dataStruct).length;
-  let dataCnt = Object.keys(data).length;
-  const [orderIndex, setOrderIndex] = useState([
-    ...Array(Object.keys(data).length).keys(),
-  ]);
-  const [order, setOrder] = useState(Array(headerCnt).fill(null));
+function Label({ txt }) {
+  return (
+    <label
+      className="Label"
+      style={{
+        color:
+          txt == "Easy"
+            ? "green"
+            : txt == "Medium"
+            ? "orange"
+            : txt == "Hard"
+            ? "red"
+            : "black",
+      }}
+    >
+      {txt}
+    </label>
+  );
+}
 
-  console.log("A:", data, dataCnt, "DATAINDEX:", orderIndex);
-  // useEffect(() => {
-  //   console.log("V:", dataCnt);
-  //   setOrderIndex([...Array(Object.keys(data).length).keys()]);
-  // }, [dataCnt]);
+function TopicLabel({ txt }) {
+  console.log(this);
+  return <label className={"TopicLabel"}>{txt}</label>;
+}
+
+function TagLabel({ txt }) {
+  return <label className="TagLabel">{txt}</label>;
+}
+
+function TableRow({ data, tableStruct, onRowClick }) {
+  const tds = [];
+  for (const col of tableStruct) {
+    const attr = col.name;
+    const Component = col.component;
+    const colData = Array.isArray(data[attr]) ? data[attr] : [data[attr]];
+    tds.push(
+      <td key={attr} onClick={onRowClick}>
+        {colData.map((x, i) => (
+          <Component
+            className={attr}
+            txt={typeof x == "string" ? x : String(x)}
+            key={i}
+          />
+        ))}
+      </td>
+    );
+  }
+  return (
+    <>
+      <tr className="TableRow">{tds}</tr>
+      <CommentBlock data={data} colCnt={tableStruct.length} />
+    </>
+  );
+}
+
+function Table({ data, tableStruct, onRowClick }) {
+  const headerCnt = tableStruct.length;
+  const [rowOrder, setRowOrder] = useState(Object.keys(data));
+  const [headerSort, setHeaderSort] = useState(Array(headerCnt).fill(null));
+  useMemo(() => {
+    setRowOrder(Object.keys(data));
+  }, [data]);
 
   function handleHeaderClick(i) {
-    const sgn = order[i] ? -1 : 1;
-    const name = dataStruct[i].name;
-    const dataTemp = orderIndex.slice();
-    dataTemp.sort(function (a, b) {
-      const d1 = data[a][name];
-      const d2 = data[b][name];
+    const sgn = headerSort[i] ? -1 : 1;
+    const headerStr = tableStruct[i].name;
+    const rowOrderTemp = rowOrder.slice();
+    rowOrderTemp.sort(function (a, b) {
+      const d1 = data[a][headerStr];
+      const d2 = data[b][headerStr];
       if (d1 === d2) {
         return 0;
       } else {
         return d1 > d2 ? sgn : -sgn;
       }
     });
-    var orderTemp = Array(headerCnt).fill(null);
-    orderTemp[i] = !order[i];
-    setOrderIndex(dataTemp);
-    setOrder(orderTemp);
+    var headerSortTemp = Array(headerCnt).fill(null);
+    headerSortTemp[i] = !headerSort[i];
+    setRowOrder(rowOrderTemp);
+    setHeaderSort(headerSortTemp);
   }
 
   return (
     <table className="Maintable">
       <thead>
         <tr>
-          {Object.keys(dataStruct).map((i) => (
+          {tableStruct.map((col, i) => (
             <TableHeader
               key={i}
-              name={dataStruct[i].title}
+              name={col.headerTxt}
               onHeaderClick={() => handleHeaderClick(i)}
-              order={order[i]}
+              headerSort={headerSort[i]}
             />
           ))}
         </tr>
       </thead>
       <tbody>
-        {orderIndex.map((x) => (
-          <TableRow data={x in data ? data[x] : null} key={x} />
+        {rowOrder.map((x) => (
+          <TableRow
+            data={data[x]}
+            tableStruct={tableStruct}
+            key={x}
+            onRowClick={() => onRowClick(x)}
+          />
         ))}
       </tbody>
     </table>
@@ -202,30 +247,75 @@ function Table({ data, dataStruct }) {
 }
 
 export default function App() {
-  const dataStruct = {
-    0: { name: "date", title: "Date" },
-    1: { name: "title", title: "Title" },
-    2: { name: "difficulty", title: "Difficulty" },
-    3: { name: "status", title: "Status" },
-    4: { name: "topics", title: "Topics" },
-    5: { name: "tags", title: "Tags" },
-  };
+  const tableStruct = [
+    { name: "date", headerTxt: "Date", component: Label },
+    { name: "title", headerTxt: "Title", component: Label },
+    { name: "difficulty", headerTxt: "Difficulty", component: Label },
+    { name: "status", headerTxt: "Status", component: Label },
+    { name: "count", headerTxt: "Count", component: Label },
+    { name: "topics", headerTxt: "Topics", component: TopicLabel },
+    { name: "tags", headerTxt: "Tags", component: TagLabel },
+  ];
   const initData = {
     0: {
-      date: "1/2/2024",
+      date: "",
       title: "0. banana",
       difficulty: "Easy",
-      status: "Solved",
+      status: "",
+      count: 0,
       topics: ["string", "array", "list"],
       tags: ["leet100", "blind75"],
+      comments: [
+        {
+          date: "19/01/2022",
+          comment: "Dont know how",
+          state: "No idea",
+          status: "Read",
+        },
+        {
+          date: "01/02/2022",
+          comment: "Too easy lalalala",
+          state: "Well done",
+          status: "Mastered",
+        },
+      ],
+      showComment: false,
     },
     1: {
-      date: "2/2/2024",
+      date: "",
       title: "11. nana",
       difficulty: "Medium",
-      status: "Tried",
+      status: "",
+      count: 0,
       topics: ["string"],
       tags: ["blind75"],
+      comments: [
+        {
+          date: "12/11/2023",
+          comment: "Blablabla",
+          state: "Not optimal",
+          status: "Read",
+        },
+      ],
+      showComment: false,
+    },
+    12: {
+      date: "",
+      title: "11. nana",
+      difficulty: "Hard",
+      status: "",
+      count: 0,
+      topics: ["string"],
+      tags: ["blind75"],
+      comments: [
+        {
+          date: "12/11/2023",
+          comment: "Blablabla",
+          state: "Not optimal",
+          status: "Read",
+        },
+      ],
+      showComment: false,
     },
   };
   const options = {
@@ -235,7 +325,17 @@ export default function App() {
     tags: ["leet100", "blind75"],
   };
 
-  //Add data to different categories
+  //Update data status for last comment
+  for (const id in initData) {
+    const thisData = initData[id];
+    const n = thisData.comments.length;
+    const lastComment = thisData.comments[n - 1];
+    thisData.date = lastComment.date;
+    thisData.status = lastComment.status;
+    thisData.count = n;
+  }
+
+  //Seperate data for different categories
   const dataCategory = {};
   for (const [category, tagArr] of Object.entries(options)) {
     dataCategory[category] = Object.fromEntries(tagArr.map((x) => [x, []]));
@@ -249,36 +349,71 @@ export default function App() {
 
   const [data, setData] = useState(initData);
   const [selected, setSelected] = useState({});
+  const [dataFreq, setDataFreq] = useState({});
+
   function handleAddSelection(category, tag) {
-    //Update selected array
+    //Update selected tags
     if (category in selected && selected[category].includes(tag)) return;
     var selectedTemp = { ...selected };
     if (!(category in selectedTemp)) {
       selectedTemp[category] = [];
     }
     selectedTemp[category].push(tag);
-    setSelected(selectedTemp);
 
     //Update data
-    const dataTemp = {};
+    const dataFreqTemp = structuredClone(dataFreq);
+    const dataTemp = !Object.keys(selected).length ? {} : structuredClone(data);
     for (const id of dataCategory[category][tag]) {
-      if (!(id in dataTemp)) dataTemp[id] = initData[id];
+      if (!(id in dataTemp)) {
+        dataTemp[id] = initData[id];
+        dataFreqTemp[id] = 0;
+      }
+      dataFreqTemp[id] += 1;
     }
+
+    setSelected(selectedTemp);
+    setDataFreq(dataFreqTemp);
     setData(dataTemp);
   }
 
   function handleRemoveSelection(category, tag) {
+    //Update selected tags
     const selectedTemp = structuredClone(selected);
     const i = selectedTemp[category].indexOf(tag);
     selectedTemp[category].splice(i, 1);
     if (!selectedTemp[category].length) {
       delete selectedTemp[category];
     }
+
+    //Update data
+    let dataTemp, dataFreqTemp;
+    if (!Object.keys(selectedTemp).length) {
+      dataTemp = initData;
+      dataFreqTemp = {};
+    } else {
+      dataTemp = structuredClone(data);
+      dataFreqTemp = structuredClone(dataFreq);
+      for (const id of dataCategory[category][tag]) {
+        if (dataFreqTemp[id] == 1) delete dataTemp[id]; //Don't delete if this id is included by other tags
+        dataFreqTemp[id] -= dataFreqTemp[id] > 0 ? 1 : 0;
+      }
+    }
+
     setSelected(selectedTemp);
+    setDataFreq(dataFreqTemp);
+    setData(dataTemp);
   }
 
   function handleResetSelection() {
     setSelected({});
+    setDataFreq({});
+    setData(initData);
+  }
+
+  function handleRowClick(i) {
+    const dataTemp = structuredClone(data);
+    dataTemp[i].showComment = !dataTemp[i].showComment;
+    setData(dataTemp);
   }
 
   return (
@@ -291,7 +426,11 @@ export default function App() {
         onRemove={handleRemoveSelection}
         onReset={handleResetSelection}
       />
-      <Table data={data} dataStruct={dataStruct} />
+      <Table
+        data={data}
+        tableStruct={tableStruct}
+        onRowClick={handleRowClick}
+      />
     </>
   );
 }

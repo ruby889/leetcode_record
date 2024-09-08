@@ -18,7 +18,7 @@
   margin: 0px auto;
 }
 
-/*Table*/
+/*****************Table*****************************/
 
 th,
 td {
@@ -27,21 +27,25 @@ td {
 }
 
 th[scope="col"] {
-  background-color: #505050;
+  background-color: #110d0d;
   color: #fff;
   padding: 8px 15px;
 }
 
-th[scope="row"] {
+/* th[scope="row"] {
   background-color: #d6ecd4;
-}
+} */
 
 td {
   text-align: center;
 }
 
-tr:nth-of-type(even) {
+.TableRow:nth-of-type(even) {
   background-color: #eee;
+}
+
+.title{
+  color:#90ccc0;
 }
 
 table {
@@ -68,6 +72,25 @@ th.down {
   cursor: pointer;
   background-repeat: no-repeat;
   background-position: center right;
+}
+
+ul.CommentBlock{
+  margin: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 12px;
+}
+
+li.CommentBlock {
+  text-align: left;
+  margin: 0px 0px;
+}
+
+.CommentBlockDate {
+  font-weight: bold;
+}
+
+.CommentBlockState{
+  color:#888888;
+  font-size: x-small;
 }
 
 .TopicLabel {
