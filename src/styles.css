@@ -100,7 +100,7 @@ li.CommentBlock {
 }
 
 .TagLabel {
-  background-color: #f5eded;
+  background-color: #f5fcf0;
   border-radius: 35px;
   padding: 5px 5px;
 }
@@ -157,7 +157,7 @@ li.CommentBlock {
 }
 
 .FilteredDisplay label {
-  background-color: #f5eded;
+  /* background-color: #f5eded; */
   border-radius: 35px;
   padding: 5px 5px;
 }

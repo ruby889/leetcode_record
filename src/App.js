@@ -64,6 +64,22 @@ function FilteredDisplay({ selected, onRemove }) {
             category={category + "_" + tag}
             className={category + "_FilterTag"}
             key={i}
+            style={{
+              "background-color":
+                category == "topics"
+                  ? "#f5eded"
+                  : category == "tags"
+                  ? "#f5fcf0"
+                  : "#f7f6f6",
+              color:
+                tag == "Easy"
+                  ? "green"
+                  : tag == "Medium"
+                  ? "orange"
+                  : tag == "Hard"
+                  ? "red"
+                  : "black",
+            }}
           >
             {tag}
             <span
@@ -121,8 +137,8 @@ function CommentBlock({ data, colCnt }) {
     <tr className="CommentBlock">
       <td colSpan={colCnt}>
         <ul className="CommentBlock">
-          {data.comments.map((cmt) => (
-            <li className="CommentBlock">
+          {data.comments.map((cmt, i) => (
+            <li className="CommentBlock" key={i}>
               <label className="CommentBlockDate"> {cmt.date}: </label>
               <label className="CommentBlockState">
                 [{cmt.status} / {cmt.state}]
@@ -157,7 +173,6 @@ function Label({ txt }) {
 }
 
 function TopicLabel({ txt }) {
-  console.log(this);
   return <label className={"TopicLabel"}>{txt}</label>;
 }
 
