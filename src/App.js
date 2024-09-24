@@ -157,7 +157,6 @@ function Label({ txt }) {
 }
 
 function TopicLabel({ txt }) {
-  console.log(this);
   return <label className={"TopicLabel"}>{txt}</label>;
 }
 
@@ -325,6 +324,12 @@ export default function App() {
     tags: ["leet100", "blind75"],
   };
 
+  // fetch("/profile").then((res) =>
+  //   res.json().then((data) => {
+  //     // Setting a data from api
+  //     console.log(data.name, data.about);
+  //   })
+  // );
   //Update data status for last comment
   for (const id in initData) {
     const thisData = initData[id];

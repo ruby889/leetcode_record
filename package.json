@@ -2,13 +2,16 @@
   "name": "react.dev",
   "version": "0.0.0",
   "main": "/src/index.js",
+  "proxy": "http://localhost:5000",
   "scripts": {
     "start": "react-scripts start",
+    "start-backend": "cd backend && env/Scripts/flask run --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "fetch": "^1.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-scripts": "^5.0.0"
