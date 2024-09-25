@@ -262,19 +262,15 @@ function Table({ data, tableStruct, onRowClick }) {
 }
 
 function getInitialData() {
-  const initData1 = {};
-  fetch("/getData").then((res) =>
-    res.json().then((data) => {
-      initData1 = data;
-    })
-  );
+  var initData1 = fetch("/data").then((res) => res.json());
 
-  // Set default value of showComment
-  for (const key of Object.keys(initData1)) {
-    initData1[key].showComment = false;
-  }
-  console.log(initData1[0]);
-
+  // console.log(initData1);
+  console.log(initData1[1]);
+  // // Set default value of showComment
+  // for (const key of Object.keys(initData1)) {
+  //   initData1[key].showComment = false;
+  // }
+  // console.log(initData1[0]);
   const initData = {
     0: {
       date: "",
@@ -359,29 +355,58 @@ export default function App() {
     { name: "topics", headerTxt: "Topics", component: TopicLabel },
     { name: "tags", headerTxt: "Tags", component: TagLabel },
   ];
-  const options = {
+
+  const options0 = {
     difficulty: ["Easy", "Medium", "Hard"],
     status: ["Mastered", "Solved", "Tried", "Read"],
-    topics: ["string", "array", "list"],
-    tags: ["leet100", "blind75"],
+    topics: [],
+    tags: [],
   };
-  const initData = getInitialData();
 
   //Seperate data for different categories
-  const dataCategory = {};
-  for (const [category, tagArr] of Object.entries(options)) {
-    dataCategory[category] = Object.fromEntries(tagArr.map((x) => [x, []]));
-    for (const [id, thisData] of Object.entries(initData)) {
-      const tags = Array.isArray(thisData[category])
-        ? thisData[category]
-        : [thisData[category]];
-      tags.forEach((tag) => dataCategory[category][tag].push(id));
-    }
+  const dataCategory0 = {};
+  for (const [category, tagArr] of Object.entries(options0)) {
+    dataCategory0[category] = Object.fromEntries(tagArr.map((x) => [x, []]));
   }
 
-  const [data, setData] = useState(initData);
+  const [initData, setInitData] = useState({});
+  const [displayData, setDisplayData] = useState({});
   const [selected, setSelected] = useState({});
   const [dataFreq, setDataFreq] = useState({});
+  const [options, setOptions] = useState(options0);
+  const [dataCategory, setDataCategory] = useState(dataCategory0);
+
+  // const initData = getInitialData();
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetch("/data");
+      const json = await data.json();
+      setInitData(json);
+      setDisplayData(json);
+    };
+    fetchData().catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    const optionsTemp = structuredClone(options);
+    const dataCategoryTemp = structuredClone(dataCategory);
+    for (const [id, thisData] of Object.entries(initData)) {
+      for (const category of Object.keys(optionsTemp)) {
+        const tags = Array.isArray(thisData[category])
+          ? thisData[category]
+          : [thisData[category]];
+        for (const tag of tags) {
+          if (!optionsTemp[category].includes(tag)) {
+            optionsTemp[category].push(tag);
+            dataCategoryTemp[category][tag] = [];
+          }
+          dataCategoryTemp[category][tag].push(id);
+        }
+      }
+    }
+    setOptions(optionsTemp);
+    setDataCategory(dataCategoryTemp);
+  }, [initData]);
 
   function handleAddSelection(category, tag) {
     //Update selected tags
@@ -394,7 +419,9 @@ export default function App() {
 
     //Update data
     const dataFreqTemp = structuredClone(dataFreq);
-    const dataTemp = !Object.keys(selected).length ? {} : structuredClone(data);
+    const dataTemp = !Object.keys(selected).length
+      ? {}
+      : structuredClone(displayData);
     for (const id of dataCategory[category][tag]) {
       if (!(id in dataTemp)) {
         dataTemp[id] = initData[id];
@@ -405,7 +432,7 @@ export default function App() {
 
     setSelected(selectedTemp);
     setDataFreq(dataFreqTemp);
-    setData(dataTemp);
+    setDisplayData(dataTemp);
   }
 
   function handleRemoveSelection(category, tag) {
@@ -420,10 +447,10 @@ export default function App() {
     //Update data
     let dataTemp, dataFreqTemp;
     if (!Object.keys(selectedTemp).length) {
-      dataTemp = initData;
+      dataTemp = structuredClone(initData);
       dataFreqTemp = {};
     } else {
-      dataTemp = structuredClone(data);
+      dataTemp = structuredClone(displayData);
       dataFreqTemp = structuredClone(dataFreq);
       for (const id of dataCategory[category][tag]) {
         if (dataFreqTemp[id] == 1) delete dataTemp[id]; //Don't delete if this id is included by other tags
@@ -433,19 +460,19 @@ export default function App() {
 
     setSelected(selectedTemp);
     setDataFreq(dataFreqTemp);
-    setData(dataTemp);
+    setDisplayData(dataTemp);
   }
 
   function handleResetSelection() {
     setSelected({});
     setDataFreq({});
-    setData(initData);
+    setDisplayData(structuredClone(initData));
   }
 
   function handleRowClick(i) {
-    const dataTemp = structuredClone(data);
+    const dataTemp = structuredClone(displayData);
     dataTemp[i].showComment = !dataTemp[i].showComment;
-    setData(dataTemp);
+    setDisplayData(dataTemp);
   }
 
   return (
@@ -459,7 +486,7 @@ export default function App() {
         onReset={handleResetSelection}
       />
       <Table
-        data={data}
+        data={displayData}
         tableStruct={tableStruct}
         onRowClick={handleRowClick}
       />

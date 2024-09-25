@@ -74,6 +74,10 @@ th.down {
   background-position: center right;
 }
 
+.CommentBlock{
+  background-color: #f5f2d5;
+}
+
 ul.CommentBlock{
   margin: 0px 0px 0px 0px;
   padding: 0px 0px 0px 12px;
