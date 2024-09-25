@@ -261,16 +261,20 @@ function Table({ data, tableStruct, onRowClick }) {
   );
 }
 
-export default function App() {
-  const tableStruct = [
-    { name: "date", headerTxt: "Date", component: Label },
-    { name: "title", headerTxt: "Title", component: Label },
-    { name: "difficulty", headerTxt: "Difficulty", component: Label },
-    { name: "status", headerTxt: "Status", component: Label },
-    { name: "count", headerTxt: "Count", component: Label },
-    { name: "topics", headerTxt: "Topics", component: TopicLabel },
-    { name: "tags", headerTxt: "Tags", component: TagLabel },
-  ];
+function getInitialData() {
+  const initData1 = {};
+  fetch("/getData").then((res) =>
+    res.json().then((data) => {
+      initData1 = data;
+    })
+  );
+
+  // Set default value of showComment
+  for (const key of Object.keys(initData1)) {
+    initData1[key].showComment = false;
+  }
+  console.log(initData1[0]);
+
   const initData = {
     0: {
       date: "",
@@ -333,20 +337,7 @@ export default function App() {
       showComment: false,
     },
   };
-  const options = {
-    difficulty: ["Easy", "Medium", "Hard"],
-    status: ["Mastered", "Solved", "Tried", "Read"],
-    topics: ["string", "array", "list"],
-    tags: ["leet100", "blind75"],
-  };
 
-  // fetch("/profile").then((res) =>
-  //   res.json().then((data) => {
-  //     // Setting a data from api
-  //     console.log(data.name, data.about);
-  //   })
-  // );
-  //Update data status for last comment
   for (const id in initData) {
     const thisData = initData[id];
     const n = thisData.comments.length;
@@ -355,6 +346,26 @@ export default function App() {
     thisData.status = lastComment.status;
     thisData.count = n;
   }
+  return initData;
+}
+
+export default function App() {
+  const tableStruct = [
+    { name: "date", headerTxt: "Date", component: Label },
+    { name: "title", headerTxt: "Title", component: Label },
+    { name: "difficulty", headerTxt: "Difficulty", component: Label },
+    { name: "status", headerTxt: "Status", component: Label },
+    { name: "count", headerTxt: "Count", component: Label },
+    { name: "topics", headerTxt: "Topics", component: TopicLabel },
+    { name: "tags", headerTxt: "Tags", component: TagLabel },
+  ];
+  const options = {
+    difficulty: ["Easy", "Medium", "Hard"],
+    status: ["Mastered", "Solved", "Tried", "Read"],
+    topics: ["string", "array", "list"],
+    tags: ["leet100", "blind75"],
+  };
+  const initData = getInitialData();
 
   //Seperate data for different categories
   const dataCategory = {};

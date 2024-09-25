@@ -1,14 +1,9 @@
 from flask import Flask
+from readGoogleSheet import getLeetcodeData
 
 api = Flask(__name__)
 
-@api.route('/googleSheetData')
-def googleSheetData():
-
-    
-    response_body = {
-        "name": "Nagato",
-        "about" :"Hello! I'm a full stack developer that loves python and javascript"
-    }
-
+@api.route('/getData')
+def getData():
+    response_body = getLeetcodeData()
     return response_body
