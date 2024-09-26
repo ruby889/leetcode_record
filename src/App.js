@@ -131,8 +131,8 @@ function TableHeader({ name, onHeaderClick, headerSort }) {
   );
 }
 
-function CommentBlock({ data, colCnt }) {
-  if (!data.showComment) return;
+function CommentBlock({ data, showComment, colCnt }) {
+  if (!showComment) return;
   return (
     <tr className="CommentBlock">
       <td colSpan={colCnt}>
@@ -153,9 +153,13 @@ function CommentBlock({ data, colCnt }) {
 }
 
 function Label({ txt }) {
+  return <label className="Label">{txt}</label>;
+}
+
+function DifficultyLabel({ txt }) {
   return (
     <label
-      className="Label"
+      className="DifficultyLabel"
       style={{
         color:
           txt == "Easy"
@@ -164,7 +168,7 @@ function Label({ txt }) {
             ? "orange"
             : txt == "Hard"
             ? "red"
-            : "black",
+            : "currentColor",
       }}
     >
       {txt}
@@ -173,27 +177,23 @@ function Label({ txt }) {
 }
 
 function TopicLabel({ txt }) {
-  return <label className={"TopicLabel"}>{txt}</label>;
+  return <label className="TopicLabel">{txt}</label>;
 }
 
 function TagLabel({ txt }) {
   return <label className="TagLabel">{txt}</label>;
 }
 
-function TableRow({ data, tableStruct, onRowClick }) {
+function TableRow({ data, tableStruct, showComment, onRowClick }) {
   const tds = [];
   for (const col of tableStruct) {
     const attr = col.name;
     const Component = col.component;
     const colData = Array.isArray(data[attr]) ? data[attr] : [data[attr]];
     tds.push(
-      <td key={attr} onClick={onRowClick}>
+      <td className={attr} key={attr} onClick={onRowClick}>
         {colData.map((x, i) => (
-          <Component
-            className={attr}
-            txt={typeof x == "string" ? x : String(x)}
-            key={i}
-          />
+          <Component txt={typeof x == "string" ? x : String(x)} key={i} />
         ))}
       </td>
     );
@@ -201,17 +201,27 @@ function TableRow({ data, tableStruct, onRowClick }) {
   return (
     <>
       <tr className="TableRow">{tds}</tr>
-      <CommentBlock data={data} colCnt={tableStruct.length} />
+      <CommentBlock
+        data={data}
+        showComment={showComment}
+        colCnt={tableStruct.length}
+      />
     </>
   );
 }
 
-function Table({ data, tableStruct, onRowClick }) {
+function Table({ data, tableStruct }) {
   const headerCnt = tableStruct.length;
   const [rowOrder, setRowOrder] = useState(Object.keys(data));
   const [headerSort, setHeaderSort] = useState(Array(headerCnt).fill(null));
+  const [showComment, setShowComment] = useState(
+    Object.fromEntries(Object.keys(data).map((x) => [x, false]))
+  );
   useMemo(() => {
     setRowOrder(Object.keys(data));
+    setShowComment(
+      Object.fromEntries(Object.keys(data).map((x) => [x, false]))
+    );
   }, [data]);
 
   function handleHeaderClick(i) {
@@ -231,6 +241,12 @@ function Table({ data, tableStruct, onRowClick }) {
     headerSortTemp[i] = !headerSort[i];
     setRowOrder(rowOrderTemp);
     setHeaderSort(headerSortTemp);
+  }
+
+  function handleRowClick(i) {
+    const showCommentTemp = structuredClone(showComment);
+    showCommentTemp[i] = !showCommentTemp[i];
+    setShowComment(showCommentTemp);
   }
 
   return (
@@ -253,7 +269,8 @@ function Table({ data, tableStruct, onRowClick }) {
             data={data[x]}
             tableStruct={tableStruct}
             key={x}
-            onRowClick={() => onRowClick(x)}
+            showComment={showComment[x]}
+            onRowClick={() => handleRowClick(x)}
           />
         ))}
       </tbody>
@@ -262,15 +279,6 @@ function Table({ data, tableStruct, onRowClick }) {
 }
 
 function getInitialData() {
-  var initData1 = fetch("/data").then((res) => res.json());
-
-  // console.log(initData1);
-  console.log(initData1[1]);
-  // // Set default value of showComment
-  // for (const key of Object.keys(initData1)) {
-  //   initData1[key].showComment = false;
-  // }
-  // console.log(initData1[0]);
   const initData = {
     0: {
       date: "",
@@ -294,7 +302,6 @@ function getInitialData() {
           status: "Mastered",
         },
       ],
-      showComment: false,
     },
     1: {
       date: "",
@@ -312,7 +319,6 @@ function getInitialData() {
           status: "Read",
         },
       ],
-      showComment: false,
     },
     12: {
       date: "",
@@ -330,7 +336,6 @@ function getInitialData() {
           status: "Read",
         },
       ],
-      showComment: false,
     },
   };
 
@@ -349,7 +354,7 @@ export default function App() {
   const tableStruct = [
     { name: "date", headerTxt: "Date", component: Label },
     { name: "title", headerTxt: "Title", component: Label },
-    { name: "difficulty", headerTxt: "Difficulty", component: Label },
+    { name: "difficulty", headerTxt: "Difficulty", component: DifficultyLabel },
     { name: "status", headerTxt: "Status", component: Label },
     { name: "count", headerTxt: "Count", component: Label },
     { name: "topics", headerTxt: "Topics", component: TopicLabel },
@@ -369,6 +374,9 @@ export default function App() {
     dataCategory0[category] = Object.fromEntries(tagArr.map((x) => [x, []]));
   }
 
+  // const initData0 = getInitialData();
+  // const [initData, setInitData] = useState(initData0);
+  // const [displayData, setDisplayData] = useState(initData0);
   const [initData, setInitData] = useState({});
   const [displayData, setDisplayData] = useState({});
   const [selected, setSelected] = useState({});
@@ -376,7 +384,6 @@ export default function App() {
   const [options, setOptions] = useState(options0);
   const [dataCategory, setDataCategory] = useState(dataCategory0);
 
-  // const initData = getInitialData();
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetch("/data");
@@ -469,11 +476,11 @@ export default function App() {
     setDisplayData(structuredClone(initData));
   }
 
-  function handleRowClick(i) {
-    const dataTemp = structuredClone(displayData);
-    dataTemp[i].showComment = !dataTemp[i].showComment;
-    setDisplayData(dataTemp);
-  }
+  // function handleRowClick(i) {
+  //   const dataTemp = structuredClone(displayData);
+  //   dataTemp[i].showComment = !dataTemp[i].showComment;
+  //   setDisplayData(dataTemp);
+  // }
 
   return (
     <>
@@ -485,11 +492,7 @@ export default function App() {
         onRemove={handleRemoveSelection}
         onReset={handleResetSelection}
       />
-      <Table
-        data={displayData}
-        tableStruct={tableStruct}
-        onRowClick={handleRowClick}
-      />
+      <Table data={displayData} tableStruct={tableStruct} />
     </>
   );
 }

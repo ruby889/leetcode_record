@@ -1,9 +1,9 @@
+import json
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from oauth2client.service_account import ServiceAccountCredentials
-def get_spreadsheet_service():
-    service_key_file = 'master-plateau-431803-q3-6409b3901863.json'
+def get_spreadsheet_service(service_key_file):
     credentials = ServiceAccountCredentials.from_json_keyfile_name(
         service_key_file,
         scopes='https://www.googleapis.com/auth/spreadsheets',
@@ -69,7 +69,7 @@ def add_sheet_values(data, tag, header, sheet_values):
         }
         if row['Type'].isdigit():
             row['Type'] = type_conversion[int(row['Type'])]
-        row['Type'] = row['Type'] if row['Type'] != 'Unknown' else ''
+        row['Type'] = row['Type'] if row['Type'] != 'unknown' else ''
 
         row['Hand On']      = True if row['Hand On'] == 'Y' else False
         row['Correct Idea'] = True if row['Correct Idea'] == 'Y' else False
@@ -122,10 +122,14 @@ def add_sheet_values(data, tag, header, sheet_values):
             raise(e)
 
 def getLeetcodeData():
+    with open('config.json', 'r') as file:
+        config = json.load(file)
+    service_key_file = config['service_key_file']
+    service = get_spreadsheet_service(service_key_file)
+    
     sheet_names = ['Random by topic', 'ZhiHu TimothyL 1st loop', 'ZhiHu TimothyL 2nd loop']
     spreadsheet_id = "1N7m-HNJV3ekZ4eDkWj4qicpgJvolFZulYmrhXUb4i3E"
     header = ['Date', 'No', 'Name', 'Level', 'Type', 'Hand On', 'Correct Idea', 'Need Review', 'Review Reason', 'Completed count', 'Remarks', 'Remarks1', 'Remarks2']
-    service = get_spreadsheet_service()
     data = {}
     for sheet_name in sheet_names:
         vals = get_sheet_values(service, spreadsheet_id, f"'{sheet_name}'!A:M")
