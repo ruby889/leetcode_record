@@ -65,7 +65,7 @@ function FilteredDisplay({ selected, onRemove }) {
             className={category + "_FilterTag"}
             key={i}
             style={{
-              "background-color":
+              backgroundColor:
                 category == "topics"
                   ? "#f5eded"
                   : category == "tags"
@@ -117,10 +117,10 @@ function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
 
 function TableHeader({ name, onHeaderClick, headerSort }) {
   function updateClassName(headerSort) {
-    if (headerSort === null) {
+    if (headerSort === 0) {
       return "default";
     } else {
-      return headerSort === true ? "up" : "down";
+      return headerSort === 1 ? "up" : "down";
     }
   }
   let orderName = updateClassName(headerSort);
@@ -176,24 +176,39 @@ function DifficultyLabel({ txt }) {
   );
 }
 
-function TopicLabel({ txt }) {
-  return <label className="TopicLabel">{txt}</label>;
+function TopicLabel({ txt, onLabelClick }) {
+  return (
+    <label className="TopicLabel" onClick={onLabelClick}>
+      {txt}
+    </label>
+  );
 }
 
-function TagLabel({ txt }) {
-  return <label className="TagLabel">{txt}</label>;
+function TagLabel({ txt, onLabelClick }) {
+  return (
+    <label className="TagLabel" onClick={onLabelClick}>
+      {txt}
+    </label>
+  );
 }
 
 function TableRow({ data, tableStruct, showComment, onRowClick }) {
   const tds = [];
   for (const col of tableStruct) {
+    const onLabelClick = col.onClick;
     const attr = col.name;
     const Component = col.component;
     const colData = Array.isArray(data[attr]) ? data[attr] : [data[attr]];
+    onRowClick = onLabelClick ? null : onRowClick;
+    // onClick={() => onSelect(name, x)
     tds.push(
       <td className={attr} key={attr} onClick={onRowClick}>
         {colData.map((x, i) => (
-          <Component txt={typeof x == "string" ? x : String(x)} key={i} />
+          <Component
+            txt={typeof x == "string" ? x : String(x)}
+            key={i}
+            onLabelClick={onLabelClick ? () => onLabelClick(attr, x) : null}
+          />
         ))}
       </td>
     );
@@ -210,35 +225,88 @@ function TableRow({ data, tableStruct, showComment, onRowClick }) {
   );
 }
 
+function sort(data_a, data_b, sgn, type) {
+  let a = data_a[type];
+  let b = data_b[type];
+  if (type == "title") {
+    return sortTitle(a, b, sgn);
+  } else if (type == "last_edit" || type == "date") {
+    a = data_a["last_edit"];
+    b = data_b["last_edit"];
+    return sortPlain(parseFloat(a), parseFloat(b), sgn);
+  } else {
+    return sortPlain(a, b, sgn);
+  }
+}
+
+function sortPlain(a, b, sgn) {
+  if (a === b) {
+    return 0;
+  } else {
+    return a > b ? sgn : -sgn;
+  }
+}
+
+function sortDate(a, b, sgn) {
+  if (a != b) {
+    const a_spl = a.split("/");
+    const b_spl = b.split("/");
+    for (let i = 2; i > -1; i--) {
+      if (a_spl[i] == b_spl[i]) continue;
+      return parseInt(a_spl[i]) > parseInt(b_spl[i]) ? sgn : -sgn;
+    }
+  }
+  return 0;
+}
+
+function sortTitle(a, b, sgn) {
+  const id1 = a.split(".")[0];
+  const id2 = b.split(".")[0];
+  if (id1 != id2) {
+    return parseInt(id1) > parseInt(id2) ? sgn : -sgn;
+  }
+  return 0;
+}
+
 function Table({ data, tableStruct }) {
   const headerCnt = tableStruct.length;
-  const [rowOrder, setRowOrder] = useState(Object.keys(data));
-  const [headerSort, setHeaderSort] = useState(Array(headerCnt).fill(null));
+  const [rowOrder, setRowOrder] = useState([]);
+  const [headerSort, setHeaderSort] = useState(Array(headerCnt).fill(0));
   const [showComment, setShowComment] = useState(
     Object.fromEntries(Object.keys(data).map((x) => [x, false]))
   );
   useMemo(() => {
-    setRowOrder(Object.keys(data));
+    //Default order by last_edit
+    const rowOrderTemp = Object.keys(data);
+    rowOrderTemp.sort(function (a, b) {
+      return sort(data[a], data[b], 1, "last_edit");
+    });
+    setRowOrder(rowOrderTemp);
+
     setShowComment(
       Object.fromEntries(Object.keys(data).map((x) => [x, false]))
     );
+    setHeaderSort(Array(headerCnt).fill(0));
   }, [data]);
 
   function handleHeaderClick(i) {
-    const sgn = headerSort[i] ? -1 : 1;
+    const sortingDirect = (headerSort[i] + 1) % 3;
+    const sgn = sortingDirect === 1 ? -1 : 1;
     const headerStr = tableStruct[i].name;
     const rowOrderTemp = rowOrder.slice();
     rowOrderTemp.sort(function (a, b) {
-      const d1 = data[a][headerStr];
-      const d2 = data[b][headerStr];
-      if (d1 === d2) {
-        return 0;
-      } else {
-        return d1 > d2 ? sgn : -sgn;
+      const comp =
+        sortingDirect === 0
+          ? sort(data[a], data[b], sgn, "last_edit")
+          : sort(data[a], data[b], sgn, headerStr);
+      if (comp === 0) {
+        return sort(data[a], data[b], sgn, "title");
       }
+      return comp;
     });
-    var headerSortTemp = Array(headerCnt).fill(null);
-    headerSortTemp[i] = !headerSort[i];
+
+    var headerSortTemp = Array(headerCnt).fill(0);
+    headerSortTemp[i] = sortingDirect;
     setRowOrder(rowOrderTemp);
     setHeaderSort(headerSortTemp);
   }
@@ -282,6 +350,7 @@ function getInitialData() {
   const initData = {
     0: {
       date: "",
+      last_edit: "",
       title: "0. banana",
       difficulty: "Easy",
       status: "",
@@ -305,6 +374,7 @@ function getInitialData() {
     },
     1: {
       date: "",
+      last_edit: "",
       title: "11. nana",
       difficulty: "Medium",
       status: "",
@@ -322,6 +392,7 @@ function getInitialData() {
     },
     12: {
       date: "",
+      last_edit: "",
       title: "11. nana",
       difficulty: "Hard",
       status: "",
@@ -352,13 +423,28 @@ function getInitialData() {
 
 export default function App() {
   const tableStruct = [
-    { name: "date", headerTxt: "Date", component: Label },
-    { name: "title", headerTxt: "Title", component: Label },
-    { name: "difficulty", headerTxt: "Difficulty", component: DifficultyLabel },
-    { name: "status", headerTxt: "Status", component: Label },
-    { name: "count", headerTxt: "Count", component: Label },
-    { name: "topics", headerTxt: "Topics", component: TopicLabel },
-    { name: "tags", headerTxt: "Tags", component: TagLabel },
+    { name: "date", headerTxt: "Date", component: Label, onClick: null },
+    { name: "title", headerTxt: "Title", component: Label, onClick: null },
+    {
+      name: "difficulty",
+      headerTxt: "Difficulty",
+      component: DifficultyLabel,
+      onClick: null,
+    },
+    { name: "status", headerTxt: "Status", component: Label, onClick: null },
+    { name: "count", headerTxt: "Count", component: Label, onClick: null },
+    {
+      name: "topics",
+      headerTxt: "Topics",
+      component: TopicLabel,
+      onClick: handleAddSelection,
+    },
+    {
+      name: "tags",
+      headerTxt: "Tags",
+      component: TagLabel,
+      onClick: handleAddSelection,
+    },
   ];
 
   const options0 = {
@@ -407,7 +493,8 @@ export default function App() {
             optionsTemp[category].push(tag);
             dataCategoryTemp[category][tag] = [];
           }
-          dataCategoryTemp[category][tag].push(id);
+          if (!dataCategoryTemp[category][tag].includes(id))
+            dataCategoryTemp[category][tag].push(id);
         }
       }
     }
@@ -416,9 +503,11 @@ export default function App() {
   }, [initData]);
 
   function handleAddSelection(category, tag) {
-    //Update selected tags
+    //Skip if tag is already selected
     if (category in selected && selected[category].includes(tag)) return;
-    var selectedTemp = { ...selected };
+
+    //Add selected tag
+    const selectedTemp = { ...selected };
     if (!(category in selectedTemp)) {
       selectedTemp[category] = [];
     }
@@ -426,20 +515,16 @@ export default function App() {
 
     //Update data
     const dataFreqTemp = structuredClone(dataFreq);
-    const dataTemp = !Object.keys(selected).length
-      ? {}
-      : structuredClone(displayData);
+    const displayDataTemp = {};
     for (const id of dataCategory[category][tag]) {
-      if (!(id in dataTemp)) {
-        dataTemp[id] = initData[id];
-        dataFreqTemp[id] = 0;
+      if (!Object.keys(selected).length || id in displayData) {
+        displayDataTemp[id] = structuredClone(displayData[id]);
       }
-      dataFreqTemp[id] += 1;
+      dataFreqTemp[id] = id in dataFreqTemp ? dataFreqTemp[id] + 1 : 1;
     }
-
     setSelected(selectedTemp);
     setDataFreq(dataFreqTemp);
-    setDisplayData(dataTemp);
+    setDisplayData(displayDataTemp);
   }
 
   function handleRemoveSelection(category, tag) {
@@ -452,22 +537,26 @@ export default function App() {
     }
 
     //Update data
-    let dataTemp, dataFreqTemp;
+    let displayDataTemp = {};
+    let dataFreqTemp = structuredClone(dataFreq);
     if (!Object.keys(selectedTemp).length) {
-      dataTemp = structuredClone(initData);
+      displayDataTemp = structuredClone(initData);
       dataFreqTemp = {};
     } else {
-      dataTemp = structuredClone(displayData);
-      dataFreqTemp = structuredClone(dataFreq);
+      let max_cnt = 0;
       for (const id of dataCategory[category][tag]) {
-        if (dataFreqTemp[id] == 1) delete dataTemp[id]; //Don't delete if this id is included by other tags
-        dataFreqTemp[id] -= dataFreqTemp[id] > 0 ? 1 : 0;
+        dataFreqTemp[id] -= 1;
+        max_cnt = Math.max(max_cnt, dataFreqTemp[id]);
+      }
+      for (const id in dataFreqTemp) {
+        if (dataFreqTemp[id] == max_cnt) {
+          displayDataTemp[id] = structuredClone(initData[id]);
+        }
       }
     }
-
     setSelected(selectedTemp);
     setDataFreq(dataFreqTemp);
-    setDisplayData(dataTemp);
+    setDisplayData(displayDataTemp);
   }
 
   function handleResetSelection() {
@@ -475,12 +564,6 @@ export default function App() {
     setDataFreq({});
     setDisplayData(structuredClone(initData));
   }
-
-  // function handleRowClick(i) {
-  //   const dataTemp = structuredClone(displayData);
-  //   dataTemp[i].showComment = !dataTemp[i].showComment;
-  //   setDisplayData(dataTemp);
-  // }
 
   return (
     <>

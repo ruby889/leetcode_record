@@ -1,4 +1,5 @@
 import json
+import time
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -23,6 +24,14 @@ def get_sheet_values(service, spreadsheet_id, range_name):
         return error
 
 def add_sheet_values(data, tag, header, sheet_values):
+    def compare_date(d1, d2):
+        d1_list = d1.split('/')
+        d2_list = d2.split('/')
+        for i in range(2, -1, -1):
+            if d1_list[i] == d2_list[i]: continue
+            return int(d1_list[i]) > int(d2_list[i])
+        return True
+        
     def get_status(data_item, row):
         if not row['Correct Idea'] or not row['Hand On']:
             status = 'Read'
@@ -72,7 +81,7 @@ def add_sheet_values(data, tag, header, sheet_values):
         row['Type'] = row['Type'] if row['Type'] != 'unknown' else ''
 
         row['Hand On']      = True if row['Hand On'] == 'Y' else False
-        row['Correct Idea'] = True if row['Correct Idea'] == 'Y' else False
+        row['Correct Idea'] = True if row['Correct Idea'] else row['Hand On']
         row['Need Review']  = True if row['Need Review'] == 'Y' else False
         row['Completed count'] = int(row['Completed count']) if row['Completed count'] else 1
         
@@ -82,6 +91,7 @@ def add_sheet_values(data, tag, header, sheet_values):
             if not id in data:
                 data[id] = {
                     'date': row['Date'],
+                    'last_edit': str(time.time()),
                     'title': f"{row['No']}. {row['Name']}",
                     'difficulty': row['Level'],
                     'status': "",
@@ -100,6 +110,7 @@ def add_sheet_values(data, tag, header, sheet_values):
             else:
                 #Update topics
                 data_item = data[id]
+                data_item['last_edit'] = str(time.time())
                 if row['Type'] and not row['Type'] in data_item['topics']:
                     data_item['topics'].append(row['Type'])
                 #Update tags
@@ -107,14 +118,17 @@ def add_sheet_values(data, tag, header, sheet_values):
                     data_item['tags'].append(tag)
                 
                 #Replace count, status, comments
-                if row['Completed count'] > data_item['count']:
+                if row['Completed count'] > data_item['count'] or compare_date(row['Date'], data_item['date']):
                     data_item['count'] = row['Completed count']
+                    data_item['date'] = row['Date']
                     data_item['comments'] = []
                     add_comments(data_item, row)
                     if len(data_item['comments']):
                         data_item['comments'][-1]['status'] = data_item['status']
                         data_item['comments'][-1]['state'] = row['Review Reason']
                     data_item['status'] = get_status(data_item, row)
+            if 'ZhiHu TimothyL 2nd loop' in data[id]['tags'] and 'ZhiHu TimothyL 1st loop' not in data[id]['tags']:
+                data[id]['tags'].append('ZhiHu TimothyL 1st loop')
         except Exception as e:
             print(e)
             print(row)
