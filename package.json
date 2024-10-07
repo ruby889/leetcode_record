@@ -13,6 +13,7 @@
   "dependencies": {
     "fetch": "^1.1.0",
     "react": "^18.0.0",
+    "react-datepicker": "^7.4.0",
     "react-dom": "^18.0.0",
     "react-scripts": "^5.0.0",
     "reactjs-popup": "^2.0.6"

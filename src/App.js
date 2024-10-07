@@ -569,16 +569,6 @@ export default function App() {
   return (
     <>
       <h1 className="Header">Leetcode Record</h1>
-      {/* <Popup trigger={<button> Click to open modal </button>} modal nested>
-        {(close) => (
-          <div className="modal">
-            <div className="content">Welcome to GFG!!!</div>
-            <div>
-              <button onClick={() => close()}>Close modal</button>
-            </div>
-          </div>
-        )}
-      </Popup> */}
       <AddPage />
       <FilterDiv
         options={options}

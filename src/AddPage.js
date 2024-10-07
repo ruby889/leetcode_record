@@ -1,5 +1,72 @@
+import { useState } from "react";
 import Popup from "reactjs-popup";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "./AddPage.css";
+
+function DateField({ label, defaultDate, onDateChange }) {
+  return (
+    <td>
+      <div>
+        <label>{label}</label>
+      </div>
+      <DatePicker
+        showIcon
+        selected={defaultDate}
+        startDate={defaultDate}
+        endDate={null}
+        dateFormat="dd/MM/yyyy"
+        onChange={(date) => onDateChange(date)}
+      />
+    </td>
+  );
+}
+
+function PlainField({ label, defaultValue = "" }) {
+  return (
+    <td>
+      <div>
+        <label>{label}</label>
+      </div>
+      <input name={label} defaultValue={defaultValue} />
+    </td>
+  );
+}
+
+function LabelField({ label, defaultValue = "" }) {
+  return (
+    <td>
+      <div>
+        <label>{label}</label>
+      </div>
+      <input name={label} defaultValue={defaultValue} />
+    </td>
+  );
+}
+
+function AddPageContent() {
+  const [date, setDate] = useState(new Date());
+  function handleDateChange(d) {
+    setDate(d);
+  }
+  return (
+    <table className="AddPageContentTable">
+      <tbody>
+        <tr>
+          <DateField
+            label="Date"
+            defaultDate={date}
+            onDateChange={handleDateChange}
+          />
+          <PlainField label="Title" />
+          <PlainField label="Level" />
+          <LabelField label="Topics" />
+          <LabelField label="Tags" />
+        </tr>
+      </tbody>
+    </table>
+  );
+}
 
 export default function AddPage() {
   return (
@@ -9,18 +76,9 @@ export default function AddPage() {
           <button className="close" onClick={close}>
             &times;
           </button>
-          <div className="header"> Modal Title </div>
+          <div className="header"> Add Comment </div>
           <div className="content">
-            {" "}
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque, a
-            nostrum. Dolorem, repellat quidem ut, minima sint vel eveniet
-            quibusdam voluptates delectus doloremque, explicabo tempore dicta
-            adipisci fugit amet dignissimos?
-            <br />
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-            Consequatur sit commodi beatae optio voluptatum sed eius cumque,
-            delectus saepe repudiandae explicabo nemo nam libero ad, doloribus,
-            voluptas rem alias. Vitae?
+            <AddPageContent />
           </div>
           <div className="actions">
             <Popup
