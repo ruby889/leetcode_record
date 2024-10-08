@@ -1,94 +1,41 @@
 import { useState, useEffect, useMemo } from "react";
 import AddPage from "./AddPage";
-
-function DropdownCloseEvent(event) {
-  if (!event.target.className.match("DropdownBtn")) {
-    var dropdowns = document.getElementsByClassName("DropdownOptions");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openedDropdown = dropdowns[i];
-      if (openedDropdown.style.display === "block") {
-        openedDropdown.style.display = "";
-      }
-    }
-  }
-}
+import { Label, DifficultyLabel, TopicLabel, TagLabel } from "./Labels";
+import { DropdownCloseEvent, DropdownButton } from "./DropdownButton";
 window.addEventListener("click", DropdownCloseEvent);
-
-function DropdownButton({ name, options, onSelect }) {
-  function handleClick() {
-    const id = "DropdownOptions" + name;
-    const elem = document.getElementById(id);
-    if (elem.style.display.match("block")) {
-      elem.style.display = ""; //If it has shown, hide it
-    } else {
-      elem.style.display = "block";
-    }
-
-    //Close DropdownOptions in other categories
-    var dropdowns = document.getElementsByClassName("DropdownOptions");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openedDropdown = dropdowns[i];
-      if (
-        !openedDropdown.id.match(id) &&
-        openedDropdown.style.display.match("block")
-      ) {
-        openedDropdown.style.display = "";
-      }
-    }
-  }
-
-  return (
-    <div className="Dropdown">
-      <button className="DropdownBtn" onClick={handleClick}>
-        {name}
-      </button>
-      <div id={"DropdownOptions" + name} className="DropdownOptions">
-        {options.map((x) => (
-          <a href="#" key={x} onClick={() => onSelect(name, x)}>
-            {x}
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function FilteredDisplay({ selected, onRemove }) {
   if (!(typeof selected === "object")) return;
   return (
     <div className="FilteredDisplay">
       {Object.entries(selected).map(([category, tags]) =>
-        tags.map((tag, i) => (
-          <label
-            category={category + "_" + tag}
-            className={category + "_FilterTag"}
-            key={i}
-            style={{
-              backgroundColor:
-                category == "topics"
-                  ? "#f5eded"
-                  : category == "tags"
-                  ? "#f5fcf0"
-                  : "#f7f6f6",
-              color:
-                tag == "Easy"
-                  ? "green"
-                  : tag == "Medium"
-                  ? "orange"
-                  : tag == "Hard"
-                  ? "red"
-                  : "black",
-            }}
-          >
-            {tag}
-            <span
-              className="FilterTagClose"
-              onClick={() => onRemove(category, tag)}
-            ></span>
-          </label>
-        ))
+        tags.map((tag, i) =>
+          category == "topics" ? (
+            <TopicLabel
+              key={i}
+              txt={tag}
+              handleClose={() => onRemove(category, tag)}
+            />
+          ) : category == "tags" ? (
+            <TagLabel
+              key={i}
+              txt={tag}
+              handleClose={() => onRemove(category, tag)}
+            />
+          ) : category == "difficulty" ? (
+            <DifficultyLabel
+              key={i}
+              txt={tag}
+              handleClose={() => onRemove(category, tag)}
+            />
+          ) : (
+            <Label
+              key={i}
+              txt={tag}
+              handleClose={() => onRemove(category, tag)}
+            />
+          )
+        )
       )}
     </div>
   );
@@ -150,46 +97,6 @@ function CommentBlock({ data, showComment, colCnt }) {
         </ul>
       </td>
     </tr>
-  );
-}
-
-function Label({ txt }) {
-  return <label className="Label">{txt}</label>;
-}
-
-function DifficultyLabel({ txt }) {
-  return (
-    <label
-      className="DifficultyLabel"
-      style={{
-        color:
-          txt == "Easy"
-            ? "green"
-            : txt == "Medium"
-            ? "orange"
-            : txt == "Hard"
-            ? "red"
-            : "currentColor",
-      }}
-    >
-      {txt}
-    </label>
-  );
-}
-
-function TopicLabel({ txt, onLabelClick }) {
-  return (
-    <label className="TopicLabel" onClick={onLabelClick}>
-      {txt}
-    </label>
-  );
-}
-
-function TagLabel({ txt, onLabelClick }) {
-  return (
-    <label className="TagLabel" onClick={onLabelClick}>
-      {txt}
-    </label>
   );
 }
 

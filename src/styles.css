@@ -159,9 +159,16 @@ li.CommentBlock {
 }
 
 .FilteredDisplay label {
-  /* background-color: #f5eded; */
   border-radius: 35px;
   padding: 5px 5px;
+}
+
+.FilteredDisplay .Label {
+  background-color:#ebebeb;
+}
+
+.FilteredDisplay .DifficultyLabel {
+  background-color:#ebebeb;
 }
 
 .FilterTagClose:before {
