@@ -84,7 +84,7 @@ function DifficultyField({ label, defaultValue = "", selectionList = [] }) {
         <label>{label}</label>
       </div>
       <select
-        name="Difficulty"
+        className="DifficultySelect"
         onChange={handleSelection}
         defaultValue={defaultValue}
       >
@@ -115,11 +115,11 @@ function LabelField({ label, currentList = [], Component, handleClose }) {
   );
 }
 
-function AddPageContent() {
+function AddPageContent({ titleSuggestionList }) {
   const [date, setDate] = useState(new Date());
   const [topicList, setTopicList] = useState(["ABC", "BBV", "BBVD", "KKOKOJ"]);
   const [tagList, setTagList] = useState(["ABC", "BBV", "BBVD"]);
-  const titleSuggestionList = ["ABC", "BBV", "BBVD"];
+  // const titleSuggestionList = ["ABC", "BBV", "BBVD"];
   const difficultySelectionList = ["Easy", "Medium", "Hard"];
 
   function handleDateChange(d) {
@@ -169,7 +169,7 @@ function AddPageContent() {
   );
 }
 
-export default function AddPage() {
+export default function AddPage({ currentTitleList }) {
   return (
     <Popup trigger={<button className="button"> Add </button>} modal nested>
       {(close) => (
@@ -179,7 +179,7 @@ export default function AddPage() {
           </button>
           <div className="header"> Add Comment </div>
           <div className="content">
-            <AddPageContent />
+            <AddPageContent titleSuggestionList={currentTitleList} />
           </div>
           <div className="actions">
             <button

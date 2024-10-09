@@ -377,6 +377,9 @@ export default function App() {
   const [dataFreq, setDataFreq] = useState({});
   const [options, setOptions] = useState(options0);
   const [dataCategory, setDataCategory] = useState(dataCategory0);
+  let currentTitleList = Object.entries(initData).map(
+    ([key, val]) => val.title
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -476,7 +479,8 @@ export default function App() {
   return (
     <>
       <h1 className="Header">Leetcode Record</h1>
-      <AddPage />
+      <AddPage currentTitleList={currentTitleList} />
+      <label> {"Displayed:" + Object.keys(displayData).length}</label>
       <FilterDiv
         options={options}
         selected={selected}
