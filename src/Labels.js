@@ -1,18 +1,18 @@
-export function Label({ txt, handleClose = null }) {
+export function Label({ txt, handleDelete = null }) {
   return (
     <label className="Label">
       {txt}
-      {typeof handleClose === "function" && (
+      {typeof handleDelete === "function" && (
         <span
-          className="FilterTagClose"
-          onClick={() => handleClose(txt)}
+          className="FilterTagDelete"
+          onClick={() => handleDelete(txt)}
         ></span>
       )}
     </label>
   );
 }
 
-export function DifficultyLabel({ txt, handleClose = null }) {
+export function DifficultyLabel({ txt, handleDelete = null }) {
   return (
     <label
       className="DifficultyLabel"
@@ -28,38 +28,38 @@ export function DifficultyLabel({ txt, handleClose = null }) {
       }}
     >
       {txt}
-      {typeof handleClose === "function" && (
+      {typeof handleDelete === "function" && (
         <span
-          className="FilterTagClose"
-          onClick={() => handleClose(txt)}
+          className="FilterTagDelete"
+          onClick={() => handleDelete(txt)}
         ></span>
       )}
     </label>
   );
 }
 
-export function TopicLabel({ txt, onLabelClick, handleClose = null }) {
+export function TopicLabel({ txt, onLabelClick, handleDelete = null }) {
   return (
     <label className="TopicLabel" onClick={onLabelClick}>
       {txt}
-      {typeof handleClose === "function" && (
+      {typeof handleDelete === "function" && (
         <span
-          className="FilterTagClose"
-          onClick={() => handleClose(txt)}
+          className="FilterTagDelete"
+          onClick={() => handleDelete(txt)}
         ></span>
       )}
     </label>
   );
 }
 
-export function TagLabel({ txt, onLabelClick, handleClose = null }) {
+export function TagLabel({ txt, onLabelClick, handleDelete = null }) {
   return (
     <label className="TagLabel" onClick={onLabelClick}>
       {txt}
-      {typeof handleClose === "function" && (
+      {typeof handleDelete === "function" && (
         <span
-          className="FilterTagClose"
-          onClick={() => handleClose(txt)}
+          className="FilterTagDelete"
+          onClick={() => handleDelete(txt)}
         ></span>
       )}
     </label>

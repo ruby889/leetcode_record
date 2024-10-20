@@ -74,12 +74,12 @@ th.down {
   background-color: #f5f2d5;
 }
 
-ul.CommentBlock{
+ul.CommentList{
   margin: 0px 0px 0px 0px;
   padding: 0px 0px 0px 12px;
 }
 
-li.CommentBlock {
+li.CommentList {
   text-align: left;
   margin: 0px 0px;
 }
@@ -171,12 +171,12 @@ li.CommentBlock {
   background-color:#ebebeb;
 }
 
-.FilterTagClose:before {
+.FilterTagDelete:before {
   content: "✕";
   color: #888888;
 }
 
-.FilterTagClose {
+.FilterTagDelete {
   top: 0;
   right: 0;
   cursor: pointer;

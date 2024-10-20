@@ -4,6 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AddPage.css";
 import { TopicLabel, TagLabel } from "./Labels";
+import { CommentList, CommentBlock } from "./CommentBlock";
 
 function DateField({ label, defaultDate, onDateChange }) {
   return (
@@ -23,7 +24,12 @@ function DateField({ label, defaultDate, onDateChange }) {
   );
 }
 
-function TitleField({ label, defaultValue = "", suggestionList = [] }) {
+function TitleField({
+  label,
+  defaultValue = "",
+  suggestionList = [],
+  handleChange,
+}) {
   const inputRef = useRef(null);
   const [inputValue, setInputValue] = useState(defaultValue);
   const [predictions, setPredictions] = useState([]);
@@ -37,7 +43,7 @@ function TitleField({ label, defaultValue = "", suggestionList = [] }) {
     setPredictions(predictionsTemp);
   }
 
-  function onChange(event) {
+  function handleInputChange(event) {
     const val = event.target.value;
     updatePredictions(val);
     setInputValue(val);
@@ -47,6 +53,7 @@ function TitleField({ label, defaultValue = "", suggestionList = [] }) {
     inputRef.current.focus();
     updatePredictions("");
     setInputValue(item);
+    handleChange(item);
   }
 
   return (
@@ -58,7 +65,7 @@ function TitleField({ label, defaultValue = "", suggestionList = [] }) {
         ref={inputRef}
         name={label}
         value={inputValue}
-        onChange={onChange}
+        onChange={handleInputChange}
         autoComplete="off"
       />
       {predictions.map((item, index) => (
@@ -74,9 +81,14 @@ function TitleField({ label, defaultValue = "", suggestionList = [] }) {
   );
 }
 
-function DifficultyField({ label, defaultValue = "", selectionList = [] }) {
+function DifficultyField({
+  label,
+  defaultValue = "",
+  selectionList = [],
+  handleChange,
+}) {
   function handleSelection(e) {
-    console.log(e.target.value);
+    handleChange(e.target.value);
   }
   return (
     <td>
@@ -98,16 +110,40 @@ function DifficultyField({ label, defaultValue = "", selectionList = [] }) {
   );
 }
 
-function LabelField({ label, currentList = [], Component, handleClose }) {
-  function handleClick() {}
+function LabelField({
+  data,
+  label,
+  currentList = [],
+  Component,
+  handleDelete,
+  handleAdd,
+}) {
+  const [showInput, setShowInput] = useState(false);
+  function handleClick() {
+    setShowInput(true);
+  }
+
+  function handleInputBlur(event) {
+    const val = event.target.value;
+    handleAdd(label, val);
+    setShowInput(false);
+  }
+
   return (
     <td className="LabelField">
       <div>
         <label>{label}</label>
       </div>
       {currentList.map((x, i) => (
-        <Component txt={x} key={i} handleClose={() => handleClose(label, x)} />
+        <Component
+          txt={x}
+          key={i}
+          handleDelete={() => handleDelete(label, x)}
+        />
       ))}
+      {showInput && (
+        <input name={label} onBlur={handleInputBlur} autoComplete="off"></input>
+      )}
       <button className="LabelFieldAdd" onClick={handleClick}>
         &#43;
       </button>
@@ -115,28 +151,156 @@ function LabelField({ label, currentList = [], Component, handleClose }) {
   );
 }
 
-function AddPageContent({ titleSuggestionList }) {
+function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
+  const init_new_commit = {
+    state: "",
+    status: "",
+    comment: "",
+  };
+
+  const [showInput, setShowInput] = useState(false);
+  function handleClick() {
+    setShowInput(true);
+  }
+
+  function handleFormSubmit(event) {
+    event.preventDefault();
+    const comment = {};
+    comment.date = event.target[0].value;
+    comment.status = event.target[1].value;
+    comment.state = event.target[2].value;
+    comment.comment = event.target[3].value;
+    handleAdd(comment);
+    setShowInput(false);
+  }
+  return (
+    <td colSpan="100%" className="CommentField">
+      <div>
+        <label>Comments</label>
+      </div>
+      <CommentList data={data} />
+      {showInput && (
+        <>
+          <form className="CommentFieldInputDiv" onSubmit={handleFormSubmit}>
+            <DatePicker
+              showIcon
+              selected={date}
+              startDate={date}
+              endDate={null}
+              dateFormat="dd/MM/yyyy"
+            />
+            <input
+              name="inputStatus"
+              className="CommentFieldInputStatus"
+              autoComplete="off"
+            ></input>
+            <input
+              name="inputState"
+              className="CommentFieldInputState"
+              autoComplete="off"
+            ></input>
+            <input
+              name="inputComment"
+              className="CommentFieldInputComment"
+              autoComplete="off"
+            ></input>
+            <button type="submit">Save</button>
+          </form>
+        </>
+      )}
+      <button className="CommentFieldAdd" onClick={handleClick}>
+        &#43;
+      </button>
+    </td>
+  );
+}
+
+function AddPageContent({ data, entity, handleEntityChange }) {
   const [date, setDate] = useState(new Date());
-  const [topicList, setTopicList] = useState(["ABC", "BBV", "BBVD", "KKOKOJ"]);
-  const [tagList, setTagList] = useState(["ABC", "BBV", "BBVD"]);
-  // const titleSuggestionList = ["ABC", "BBV", "BBVD"];
+  const [lastEdit, setLastEdit] = useState(new Date());
   const difficultySelectionList = ["Easy", "Medium", "Hard"];
+  const titleSuggestionList = Object.entries(data).map(
+    ([key, val]) => val.title
+  );
 
   function handleDateChange(d) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.date = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
     setDate(d);
+    handleEntityChange(entityTemp);
   }
 
-  function handleLabelClose(field, label) {
-    if (field === "Topics") {
-      let temp = topicList.slice();
-      temp.splice(temp.indexOf(label), 1);
-      setTopicList(temp);
-    } else if (field === "Tags") {
-      let temp = tagList.slice();
-      temp.splice(temp.indexOf(label), 1);
-      setTagList(temp);
-    }
+  function handleLastEditChange(d) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.last_edit = d.valueOf();
+    setLastEdit(d);
+    handleEntityChange(entityTemp);
   }
+
+  function handleTitleChange(title) {
+    const entityTemp = structuredClone(entity);
+    if (titleSuggestionList.includes(title)) {
+      const id = parseInt(title.split(".")[0]);
+      const d = data[id];
+      entityTemp.difficulty = d.difficulty;
+      entityTemp.topics = d.topics;
+      entityTemp.tags = d.tags;
+      entityTemp.comments = d.comments;
+    }
+    entityTemp.title = title;
+    handleEntityChange(entityTemp);
+  }
+
+  function handleDifficultyChange(difficulty) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.difficulty = difficulty;
+    handleEntityChange(entityTemp);
+  }
+
+  function handleLabelDelete(field, label) {
+    const entityTemp = structuredClone(entity);
+    if (field === "Topics") {
+      let topicsTemp = entity.topics.slice();
+      topicsTemp.splice(topicsTemp.indexOf(label), 1);
+      entityTemp.topics = topicsTemp;
+    } else if (field === "Tags") {
+      let tagsTemp = entity.tags.slice();
+      tagsTemp.splice(tagsTemp.indexOf(label), 1);
+      entityTemp.tags = tagsTemp;
+    }
+    handleEntityChange(entityTemp);
+  }
+
+  function handleLabelAdd(field, label) {
+    const entityTemp = structuredClone(entity);
+    if (field === "Topics") {
+      let topicsTemp = entity.topics.slice();
+      topicsTemp.push(label);
+      entityTemp.topics = topicsTemp;
+    } else if (field === "Tags") {
+      let tagsTemp = entity.tags.slice();
+      tagsTemp.push(label);
+      entityTemp.tags = tagsTemp;
+    }
+    handleEntityChange(entityTemp);
+  }
+
+  function handleCommentEdit(comment) {
+    const entityTemp = structuredClone(entity);
+    handleEntityChange(entityTemp);
+  }
+
+  function handleCommentDelete(comment) {
+    const entityTemp = structuredClone(entity);
+    handleEntityChange(entityTemp);
+  }
+
+  function handleCommentAdd(comment) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.comments.push(comment);
+    handleEntityChange(entityTemp);
+  }
+
   return (
     <table className="AddPageContentTable">
       <tbody>
@@ -146,22 +310,37 @@ function AddPageContent({ titleSuggestionList }) {
             defaultDate={date}
             onDateChange={handleDateChange}
           />
-          <TitleField label="Title" suggestionList={titleSuggestionList} />
+          <TitleField
+            label="Title"
+            suggestionList={titleSuggestionList}
+            handleChange={handleTitleChange}
+          />
           <DifficultyField
             label="Difficulty"
             selectionList={difficultySelectionList}
+            handleChange={handleDifficultyChange}
           />
           <LabelField
             label="Topics"
-            currentList={topicList}
+            currentList={entity.topics}
             Component={TopicLabel}
-            handleClose={handleLabelClose}
+            handleDelete={handleLabelDelete}
+            handleAdd={handleLabelAdd}
           />
           <LabelField
             label="Tags"
-            currentList={tagList}
+            currentList={entity.tags}
             Component={TagLabel}
-            handleClose={handleLabelClose}
+            handleDelete={handleLabelDelete}
+            handleAdd={handleLabelAdd}
+          />
+        </tr>
+        <tr>
+          <CommentField
+            data={entity.comments}
+            handleEdit={handleCommentEdit}
+            handleDelete={handleCommentDelete}
+            handleAdd={handleCommentAdd}
           />
         </tr>
       </tbody>
@@ -169,9 +348,56 @@ function AddPageContent({ titleSuggestionList }) {
   );
 }
 
-export default function AddPage({ currentTitleList }) {
+export default function AddPage({ data, handleSave }) {
+  const init_entity = {
+    date: "",
+    last_edit: "",
+    title: "",
+    difficulty: "Easy",
+    status: "",
+    count: 0,
+    topics: [],
+    tags: [],
+    comments: [],
+  };
+  const [entity, setEntity] = useState(init_entity);
+
+  function handleSaveButtonClick() {
+    //Check if title is valid
+    const entityTemp = structuredClone(entity);
+    if (!entityTemp) return;
+    try {
+      const id = parseInt(entityTemp.title.split(".")[0]);
+      if (id == NaN) return;
+    } catch (error) {
+      return;
+    }
+
+    //Update count and status
+    entityTemp.status = entityTemp.comments.length
+      ? entityTemp.comments.at(-1).status
+      : "";
+    entityTemp.count = entityTemp.comments.length;
+    setEntity(entityTemp);
+    handleSave(entityTemp);
+  }
+
+  function handleEntityChange(entity) {
+    setEntity(entity);
+  }
+
+  function handlePopupClose() {
+    setEntity(init_entity);
+  }
+
   return (
-    <Popup trigger={<button className="button"> Add </button>} modal nested>
+    <Popup
+      className="AddPagePopup"
+      trigger={<button className="button"> Add </button>}
+      onClose={handlePopupClose}
+      modal
+      nested
+    >
       {(close) => (
         <div className="modal">
           <button className="close" onClick={close}>
@@ -179,12 +405,17 @@ export default function AddPage({ currentTitleList }) {
           </button>
           <div className="header"> Add Comment </div>
           <div className="content">
-            <AddPageContent titleSuggestionList={currentTitleList} />
+            <AddPageContent
+              data={data}
+              entity={entity}
+              handleEntityChange={handleEntityChange}
+            />
           </div>
           <div className="actions">
             <button
               className="Save"
               onClick={() => {
+                handleSaveButtonClick();
                 close();
               }}
             >

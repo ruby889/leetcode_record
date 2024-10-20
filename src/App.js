@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import AddPage from "./AddPage";
 import { Label, DifficultyLabel, TopicLabel, TagLabel } from "./Labels";
 import { DropdownCloseEvent, DropdownButton } from "./DropdownButton";
+import { CommentBlock } from "./CommentBlock";
 window.addEventListener("click", DropdownCloseEvent);
 
 function FilteredDisplay({ selected, onRemove }) {
@@ -14,25 +15,25 @@ function FilteredDisplay({ selected, onRemove }) {
             <TopicLabel
               key={i}
               txt={tag}
-              handleClose={() => onRemove(category, tag)}
+              handleDelete={() => onRemove(category, tag)}
             />
           ) : category == "tags" ? (
             <TagLabel
               key={i}
               txt={tag}
-              handleClose={() => onRemove(category, tag)}
+              handleDelete={() => onRemove(category, tag)}
             />
           ) : category == "difficulty" ? (
             <DifficultyLabel
               key={i}
               txt={tag}
-              handleClose={() => onRemove(category, tag)}
+              handleDelete={() => onRemove(category, tag)}
             />
           ) : (
             <Label
               key={i}
               txt={tag}
-              handleClose={() => onRemove(category, tag)}
+              handleDelete={() => onRemove(category, tag)}
             />
           )
         )
@@ -79,27 +80,6 @@ function TableHeader({ name, onHeaderClick, headerSort }) {
   );
 }
 
-function CommentBlock({ data, showComment, colCnt }) {
-  if (!showComment) return;
-  return (
-    <tr className="CommentBlock">
-      <td colSpan={colCnt}>
-        <ul className="CommentBlock">
-          {data.comments.map((cmt, i) => (
-            <li className="CommentBlock" key={i}>
-              <label className="CommentBlockDate"> {cmt.date}: </label>
-              <label className="CommentBlockState">
-                [{cmt.status} / {cmt.state}]
-              </label>
-              <label className="CommentBlockComment">{cmt.comment}</label>
-            </li>
-          ))}
-        </ul>
-      </td>
-    </tr>
-  );
-}
-
 function TableRow({ data, tableStruct, showComment, onRowClick }) {
   const tds = [];
   for (const col of tableStruct) {
@@ -125,7 +105,7 @@ function TableRow({ data, tableStruct, showComment, onRowClick }) {
     <>
       <tr className="TableRow">{tds}</tr>
       <CommentBlock
-        data={data}
+        data={data.comments}
         showComment={showComment}
         colCnt={tableStruct.length}
       />
@@ -377,9 +357,6 @@ export default function App() {
   const [dataFreq, setDataFreq] = useState({});
   const [options, setOptions] = useState(options0);
   const [dataCategory, setDataCategory] = useState(dataCategory0);
-  let currentTitleList = Object.entries(initData).map(
-    ([key, val]) => val.title
-  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -476,10 +453,17 @@ export default function App() {
     setDisplayData(structuredClone(initData));
   }
 
+  function handleAddPageSave(entity) {
+    const id = parseInt(entity.title.split(".")[0]);
+    const initDataTemp = structuredClone(initData);
+    initDataTemp[id] = entity;
+    // setInitData(initDataTemp);
+  }
+
   return (
     <>
       <h1 className="Header">Leetcode Record</h1>
-      <AddPage currentTitleList={currentTitleList} />
+      <AddPage data={initData} handleSave={handleAddPageSave} />
       <label> {"Displayed:" + Object.keys(displayData).length}</label>
       <FilterDiv
         options={options}

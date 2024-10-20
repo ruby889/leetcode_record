@@ -45,3 +45,12 @@
 .PredictionItem:hover {
   color: blue;
 }
+
+.CommentField > .CommentFieldAdd {
+  cursor: pointer;
+  line-height: 20px;
+  font-size: 20px;
+  background: #ffffff;
+  border-radius: 25px;
+  border: 1px solid #cfcece;
+}

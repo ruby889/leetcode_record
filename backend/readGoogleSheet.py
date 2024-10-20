@@ -104,6 +104,7 @@ def add_sheet_values(data, tag, header, sheet_values):
                 #Add comments 
                 add_comments(data_item, row)
                 if len(data_item['comments']):
+                    data_item['comments'][-1]['date'] = data_item['date']
                     data_item['comments'][-1]['status'] = data_item['status']
                     data_item['comments'][-1]['state'] = row['Review Reason']
                 data_item['status'] = get_status(data_item, row)
@@ -119,11 +120,19 @@ def add_sheet_values(data, tag, header, sheet_values):
                 
                 #Replace count, status, comments
                 if row['Completed count'] > data_item['count'] or compare_date(row['Date'], data_item['date']):
+                    prev_cmt_date = []
+                    for i, cmt in enumerate(data_item['comments']):
+                        if cmt['date']:
+                            prev_cmt_date.append([i, cmt['date']])
                     data_item['count'] = row['Completed count']
                     data_item['date'] = row['Date']
                     data_item['comments'] = []
                     add_comments(data_item, row)
+                    for i, prev_date in prev_cmt_date:
+                        if i < len(data_item['comments']):
+                            data_item['comments'][i]['date'] = prev_date
                     if len(data_item['comments']):
+                        data_item['comments'][-1]['date'] = data_item['date']
                         data_item['comments'][-1]['status'] = data_item['status']
                         data_item['comments'][-1]['state'] = row['Review Reason']
                     data_item['status'] = get_status(data_item, row)
