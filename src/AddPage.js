@@ -6,23 +6,23 @@ import "./AddPage.css";
 import { TopicLabel, TagLabel } from "./Labels";
 import { CommentList, CommentBlock } from "./CommentBlock";
 
-function DateField({ label, defaultDate, onDateChange }) {
-  return (
-    <td>
-      <div>
-        <label>{label}</label>
-      </div>
-      <DatePicker
-        showIcon
-        selected={defaultDate}
-        startDate={defaultDate}
-        endDate={null}
-        dateFormat="dd/MM/yyyy"
-        onChange={(date) => onDateChange(date)}
-      />
-    </td>
-  );
-}
+// function DateField({ label, defaultDate, onDateChange }) {
+//   return (
+//     <td>
+//       <div>
+//         <label>{label}</label>
+//       </div>
+//       <DatePicker
+//         showIcon
+//         selected={defaultDate}
+//         startDate={defaultDate}
+//         endDate={null}
+//         dateFormat="dd/MM/yyyy"
+//         onChange={(date) => onDateChange(date)}
+//       />
+//     </td>
+//   );
+// }
 
 function TitleField({
   label,
@@ -81,9 +81,20 @@ function TitleField({
   );
 }
 
+function CountField({ label, value = "", handleInputChange }) {
+  return (
+    <td>
+      <div>
+        <label>{label}</label>
+      </div>
+      <label>{value}</label>
+    </td>
+  );
+}
+
 function DifficultyField({
   label,
-  defaultValue = "",
+  selectValue = "",
   selectionList = [],
   handleChange,
 }) {
@@ -97,8 +108,8 @@ function DifficultyField({
       </div>
       <select
         className="DifficultySelect"
+        value={selectValue}
         onChange={handleSelection}
-        defaultValue={defaultValue}
       >
         {selectionList.map((item, i) => (
           <option key={i} value={item}>
@@ -157,7 +168,7 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
     status: "",
     comment: "",
   };
-
+  const [date, setDate] = useState(new Date());
   const [showInput, setShowInput] = useState(false);
   function handleClick() {
     setShowInput(true);
@@ -172,6 +183,10 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
     comment.comment = event.target[3].value;
     handleAdd(comment);
     setShowInput(false);
+  }
+
+  function handleDateChange(d) {
+    setDate(d);
   }
   return (
     <td colSpan="100%" className="CommentField">
@@ -188,6 +203,7 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
               startDate={date}
               endDate={null}
               dateFormat="dd/MM/yyyy"
+              onChange={(date) => handleDateChange(date)}
             />
             <input
               name="inputStatus"
@@ -216,19 +232,19 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
 }
 
 function AddPageContent({ data, entity, handleEntityChange }) {
-  const [date, setDate] = useState(new Date());
+  // const [date, setDate] = useState(new Date());
   const [lastEdit, setLastEdit] = useState(new Date());
   const difficultySelectionList = ["Easy", "Medium", "Hard"];
   const titleSuggestionList = Object.entries(data).map(
     ([key, val]) => val.title
   );
 
-  function handleDateChange(d) {
-    const entityTemp = structuredClone(entity);
-    entityTemp.date = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
-    setDate(d);
-    handleEntityChange(entityTemp);
-  }
+  // function handleDateChange(d) {
+  //   const entityTemp = structuredClone(entity);
+  //   entityTemp.date = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
+  //   setDate(d);
+  //   handleEntityChange(entityTemp);
+  // }
 
   function handleLastEditChange(d) {
     const entityTemp = structuredClone(entity);
@@ -242,6 +258,7 @@ function AddPageContent({ data, entity, handleEntityChange }) {
     if (titleSuggestionList.includes(title)) {
       const id = parseInt(title.split(".")[0]);
       const d = data[id];
+      entityTemp.count = d.count;
       entityTemp.difficulty = d.difficulty;
       entityTemp.topics = d.topics;
       entityTemp.tags = d.tags;
@@ -250,6 +267,12 @@ function AddPageContent({ data, entity, handleEntityChange }) {
     entityTemp.title = title;
     handleEntityChange(entityTemp);
   }
+
+  // function handleCountChange(count) {
+  //   const entityTemp = structuredClone(entity);
+  //   entityTemp.count = count;
+  //   handleEntityChange(entityTemp);
+  // }
 
   function handleDifficultyChange(difficulty) {
     const entityTemp = structuredClone(entity);
@@ -305,18 +328,20 @@ function AddPageContent({ data, entity, handleEntityChange }) {
     <table className="AddPageContentTable">
       <tbody>
         <tr>
-          <DateField
+          {/* <DateField
             label="Date"
             defaultDate={date}
             onDateChange={handleDateChange}
-          />
+          /> */}
           <TitleField
             label="Title"
             suggestionList={titleSuggestionList}
             handleChange={handleTitleChange}
           />
+          <CountField label="Count" value={entity.count} />
           <DifficultyField
             label="Difficulty"
+            selectValue={entity.difficulty}
             selectionList={difficultySelectionList}
             handleChange={handleDifficultyChange}
           />
@@ -365,20 +390,29 @@ export default function AddPage({ data, handleSave }) {
   function handleSaveButtonClick() {
     //Check if title is valid
     const entityTemp = structuredClone(entity);
-    if (!entityTemp) return;
-    try {
-      const id = parseInt(entityTemp.title.split(".")[0]);
-      if (id == NaN) return;
-    } catch (error) {
-      return;
+    const id = parseInt(entityTemp.title.split(".")[0]);
+    if (!entityTemp || !entityTemp.comments.length || id == NaN) return;
+
+    //Update date
+    if (entityTemp.comments.length) {
+      entityTemp.date = entityTemp.comments.at(-1).date;
+    } else {
+      const date = new Date();
+      entityTemp.date = `${date.getDate()}/${
+        date.getMonth
+      }/${date.getFullYear()}`;
     }
 
-    //Update count and status
+    //Update status
     entityTemp.status = entityTemp.comments.length
       ? entityTemp.comments.at(-1).status
       : "";
-    entityTemp.count = entityTemp.comments.length;
+
+    //Update count
+    entityTemp.count += 1;
+
     setEntity(entityTemp);
+    console.log(entityTemp);
     handleSave(entityTemp);
   }
 
