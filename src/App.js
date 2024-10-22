@@ -337,7 +337,7 @@ export default function App() {
 
   const options0 = {
     difficulty: ["Easy", "Medium", "Hard"],
-    status: ["Mastered", "Solved", "Tried", "Read"],
+    status: ["Read", "Tried", "Solved", "Mastered"],
     topics: [],
     tags: [],
   };
@@ -463,7 +463,12 @@ export default function App() {
   return (
     <>
       <h1 className="Header">Leetcode Record</h1>
-      <AddPage data={initData} handleSave={handleAddPageSave} />
+      <AddPage
+        data={initData}
+        handleSave={handleAddPageSave}
+        difficultySelectionList={options0.difficulty}
+        statusSelectionList={options0.status}
+      />
       <label> {"Displayed:" + Object.keys(displayData).length}</label>
       <FilterDiv
         options={options}

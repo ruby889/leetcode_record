@@ -81,13 +81,15 @@ function TitleField({
   );
 }
 
-function CountField({ label, value = "", handleInputChange }) {
+function CountField({ label, value = "", handleValueChange }) {
   return (
-    <td>
+    <td className="CountField">
       <div>
         <label>{label}</label>
       </div>
+      <button onClick={() => handleValueChange(value - 1)}>&#8722;</button>
       <label>{value}</label>
+      <button onClick={() => handleValueChange(value + 1)}>&#43;</button>
     </td>
   );
 }
@@ -162,7 +164,14 @@ function LabelField({
   );
 }
 
-function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
+function CommentField({
+  data,
+  handleEdit,
+  handleDelete,
+  handleAdd,
+  statusDefaultValue,
+  statusSelectionList,
+}) {
   const init_new_commit = {
     state: "",
     status: "",
@@ -193,7 +202,7 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
       <div>
         <label>Comments</label>
       </div>
-      <CommentList data={data} />
+      <CommentList data={data} editable={true} />
       {showInput && (
         <>
           <form className="CommentFieldInputDiv" onSubmit={handleFormSubmit}>
@@ -205,22 +214,30 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
               dateFormat="dd/MM/yyyy"
               onChange={(date) => handleDateChange(date)}
             />
-            <input
-              name="inputStatus"
-              className="CommentFieldInputStatus"
-              autoComplete="off"
-            ></input>
+            <label>Status: </label>
+            <select
+              className="CommentStatusSelect"
+              defaultValue={statusDefaultValue}
+            >
+              {statusSelectionList.map((item, i) => (
+                <option key={i} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+            <label>State: </label>
             <input
               name="inputState"
               className="CommentFieldInputState"
               autoComplete="off"
             ></input>
+            <label>Comment: </label>
             <input
               name="inputComment"
               className="CommentFieldInputComment"
               autoComplete="off"
             ></input>
-            <button type="submit">Save</button>
+            <button type="submit">Add</button>
           </form>
         </>
       )}
@@ -231,10 +248,15 @@ function CommentField({ data, handleEdit, handleDelete, handleAdd }) {
   );
 }
 
-function AddPageContent({ data, entity, handleEntityChange }) {
+function AddPageContent({
+  data,
+  entity,
+  handleEntityChange,
+  difficultySelectionList,
+  statusSelectionList,
+}) {
   // const [date, setDate] = useState(new Date());
   const [lastEdit, setLastEdit] = useState(new Date());
-  const difficultySelectionList = ["Easy", "Medium", "Hard"];
   const titleSuggestionList = Object.entries(data).map(
     ([key, val]) => val.title
   );
@@ -254,25 +276,26 @@ function AddPageContent({ data, entity, handleEntityChange }) {
   }
 
   function handleTitleChange(title) {
-    const entityTemp = structuredClone(entity);
+    let entityTemp = structuredClone(entity);
     if (titleSuggestionList.includes(title)) {
       const id = parseInt(title.split(".")[0]);
-      const d = data[id];
-      entityTemp.count = d.count;
-      entityTemp.difficulty = d.difficulty;
-      entityTemp.topics = d.topics;
-      entityTemp.tags = d.tags;
-      entityTemp.comments = d.comments;
+      // const d = data[id];
+      // entityTemp.count = d.count;
+      // entityTemp.difficulty = d.difficulty;
+      // entityTemp.topics = d.topics;
+      // entityTemp.tags = d.tags;
+      // entityTemp.comments = d.comments;
+      entityTemp = structuredClone(data[id]);
     }
     entityTemp.title = title;
     handleEntityChange(entityTemp);
   }
 
-  // function handleCountChange(count) {
-  //   const entityTemp = structuredClone(entity);
-  //   entityTemp.count = count;
-  //   handleEntityChange(entityTemp);
-  // }
+  function handleCountChange(count) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.count = count;
+    handleEntityChange(entityTemp);
+  }
 
   function handleDifficultyChange(difficulty) {
     const entityTemp = structuredClone(entity);
@@ -338,7 +361,11 @@ function AddPageContent({ data, entity, handleEntityChange }) {
             suggestionList={titleSuggestionList}
             handleChange={handleTitleChange}
           />
-          <CountField label="Count" value={entity.count} />
+          <CountField
+            label="Count"
+            value={entity.count}
+            handleValueChange={handleCountChange}
+          />
           <DifficultyField
             label="Difficulty"
             selectValue={entity.difficulty}
@@ -366,6 +393,8 @@ function AddPageContent({ data, entity, handleEntityChange }) {
             handleEdit={handleCommentEdit}
             handleDelete={handleCommentDelete}
             handleAdd={handleCommentAdd}
+            statusDefaultValue={statusSelectionList[0]}
+            statusSelectionList={statusSelectionList}
           />
         </tr>
       </tbody>
@@ -373,7 +402,12 @@ function AddPageContent({ data, entity, handleEntityChange }) {
   );
 }
 
-export default function AddPage({ data, handleSave }) {
+export default function AddPage({
+  data,
+  handleSave,
+  difficultySelectionList,
+  statusSelectionList,
+}) {
   const init_entity = {
     date: "",
     last_edit: "",
@@ -408,9 +442,6 @@ export default function AddPage({ data, handleSave }) {
       ? entityTemp.comments.at(-1).status
       : "";
 
-    //Update count
-    entityTemp.count += 1;
-
     setEntity(entityTemp);
     console.log(entityTemp);
     handleSave(entityTemp);
@@ -433,7 +464,7 @@ export default function AddPage({ data, handleSave }) {
       nested
     >
       {(close) => (
-        <div className="modal">
+        <div className="AddPageModal">
           <button className="close" onClick={close}>
             &times;
           </button>
@@ -443,17 +474,27 @@ export default function AddPage({ data, handleSave }) {
               data={data}
               entity={entity}
               handleEntityChange={handleEntityChange}
+              difficultySelectionList={difficultySelectionList}
+              statusSelectionList={statusSelectionList}
             />
           </div>
-          <div className="actions">
+          <div className="AddPageActions">
             <button
-              className="Save"
+              className="AddPageSave"
               onClick={() => {
                 handleSaveButtonClick();
                 close();
               }}
             >
               Save
+            </button>
+            <button
+              className="AddPageCancel"
+              onClick={() => {
+                close();
+              }}
+            >
+              Cancel
             </button>
           </div>
         </div>

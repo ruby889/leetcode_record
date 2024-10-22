@@ -1,5 +1,24 @@
-export function CommentList({ data }) {
+export function CommentList({
+  data,
+  editable = false,
+  handleEdition = null,
+  handleDeletion = null,
+}) {
   if (!data) return;
+  const bnts = editable
+    ? [
+        <button
+          key={0}
+          className="CommentEdit"
+          onClick={handleEdition}
+        ></button>,
+        <button
+          key={1}
+          className="CommentDelete"
+          onClick={handleDeletion}
+        ></button>,
+      ]
+    : [];
   return (
     <ul className="CommentList">
       {data.map((cmt, i) => (
@@ -9,6 +28,7 @@ export function CommentList({ data }) {
             [{cmt.status} / {cmt.state}]
           </label>
           <label className="CommentBlockComment">{cmt.comment}</label>
+          {bnts}
         </li>
       ))}
     </ul>
