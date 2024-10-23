@@ -1,34 +1,35 @@
 export function CommentList({
   data,
   editable = false,
-  handleEdition = null,
-  handleDeletion = null,
+  handleEdit = null,
+  handleDelete = null,
 }) {
   if (!data) return;
-  const bnts = editable
-    ? [
-        <button
-          key={0}
-          className="CommentEdit"
-          onClick={handleEdition}
-        ></button>,
-        <button
-          key={1}
-          className="CommentDelete"
-          onClick={handleDeletion}
-        ></button>,
-      ]
-    : [];
   return (
     <ul className="CommentList">
       {data.map((cmt, i) => (
         <li className="CommentList" key={i}>
-          <label className="CommentBlockDate"> {cmt.date}: </label>
-          <label className="CommentBlockState">
-            [{cmt.status} / {cmt.state}]
-          </label>
-          <label className="CommentBlockComment">{cmt.comment}</label>
-          {bnts}
+          <div>
+            <label className="CommentBlockDate"> {cmt.date}: </label>
+            <label className="CommentBlockState">
+              [{cmt.status} / {cmt.state}]
+            </label>
+            <label className="CommentBlockComment">{cmt.comment}</label>
+          </div>
+          {editable && (
+            <div>
+              <button
+                key={0}
+                className="CommentEdit"
+                onClick={handleEdit}
+              ></button>
+              <button
+                key={1}
+                className="CommentDelete"
+                onClick={() => handleDelete(i)}
+              ></button>
+            </div>
+          )}
         </li>
       ))}
     </ul>

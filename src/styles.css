@@ -80,8 +80,10 @@ ul.CommentList{
 }
 
 li.CommentList {
-  text-align: left;
+  /* text-align: left; */
   margin: 0px 0px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .CommentBlockDate {
@@ -191,7 +193,7 @@ li.CommentList {
   background-image: url("../public/images/pencil.png");
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 18px 18px;
+  background-size: 13px 13px;
 }
 
 .CommentDelete{
@@ -202,4 +204,5 @@ li.CommentList {
   background-image: url("../public/images/trash_can.svg");
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 13px 13px;
 }

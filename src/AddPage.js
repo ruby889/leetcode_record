@@ -202,7 +202,12 @@ function CommentField({
       <div>
         <label>Comments</label>
       </div>
-      <CommentList data={data} editable={true} />
+      <CommentList
+        data={data}
+        editable={true}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+      />
       {showInput && (
         <>
           <form className="CommentFieldInputDiv" onSubmit={handleFormSubmit}>
@@ -336,8 +341,9 @@ function AddPageContent({
     handleEntityChange(entityTemp);
   }
 
-  function handleCommentDelete(comment) {
+  function handleCommentDelete(i) {
     const entityTemp = structuredClone(entity);
+    entityTemp.comments.splice(i, 1);
     handleEntityChange(entityTemp);
   }
 
