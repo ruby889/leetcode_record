@@ -11,8 +11,8 @@ export function CommentList({
         <li className="CommentList" key={i}>
           <div>
             <label className="CommentBlockDate"> {cmt.date}: </label>
-            <label className="CommentBlockState">
-              [{cmt.status} / {cmt.state}]
+            <label className="CommentBlockStatus">
+              {cmt.status && `[${cmt.status}]`}
             </label>
             <label className="CommentBlockComment">{cmt.comment}</label>
           </div>

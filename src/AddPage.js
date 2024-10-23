@@ -81,7 +81,7 @@ function TitleField({
   );
 }
 
-function CountField({ label, value = "", handleValueChange }) {
+function CountField({ label, value, handleValueChange }) {
   return (
     <td className="CountField">
       <div>
@@ -90,6 +90,22 @@ function CountField({ label, value = "", handleValueChange }) {
       <button onClick={() => handleValueChange(value - 1)}>&#8722;</button>
       <label>{value}</label>
       <button onClick={() => handleValueChange(value + 1)}>&#43;</button>
+    </td>
+  );
+}
+
+function HintField({ label, inputValue, handleValueChange }) {
+  return (
+    <td className="CountField">
+      <div>
+        <label>{label}</label>
+      </div>
+      <input
+        name={label}
+        value={inputValue}
+        onChange={handleValueChange}
+        autoComplete="off"
+      />
     </td>
   );
 }
@@ -173,7 +189,6 @@ function CommentField({
   statusSelectionList,
 }) {
   const init_new_commit = {
-    state: "",
     status: "",
     comment: "",
   };
@@ -188,8 +203,7 @@ function CommentField({
     const comment = {};
     comment.date = event.target[0].value;
     comment.status = event.target[1].value;
-    comment.state = event.target[2].value;
-    comment.comment = event.target[3].value;
+    comment.comment = event.target[2].value;
     handleAdd(comment);
     setShowInput(false);
   }
@@ -230,12 +244,6 @@ function CommentField({
                 </option>
               ))}
             </select>
-            <label>State: </label>
-            <input
-              name="inputState"
-              className="CommentFieldInputState"
-              autoComplete="off"
-            ></input>
             <label>Comment: </label>
             <input
               name="inputComment"
@@ -299,6 +307,12 @@ function AddPageContent({
   function handleCountChange(count) {
     const entityTemp = structuredClone(entity);
     entityTemp.count = count;
+    handleEntityChange(entityTemp);
+  }
+
+  function handleHintChange(hint) {
+    const entityTemp = structuredClone(entity);
+    entityTemp.hint = hint;
     handleEntityChange(entityTemp);
   }
 
@@ -372,6 +386,11 @@ function AddPageContent({
             value={entity.count}
             handleValueChange={handleCountChange}
           />
+          <HintField
+            label="Hint"
+            inputValue={entity.hint}
+            handleValueChange={handleHintChange}
+          />
           <DifficultyField
             label="Difficulty"
             selectValue={entity.difficulty}
@@ -421,6 +440,7 @@ export default function AddPage({
     difficulty: "Easy",
     status: "",
     count: 0,
+    hint: "",
     topics: [],
     tags: [],
     comments: [],

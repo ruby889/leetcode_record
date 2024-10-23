@@ -50,7 +50,6 @@ def add_sheet_values(data, tag, header, sheet_values):
                 {
                 'date': "",
                 'comment': row[hea],
-                'state': "",
                 'status': "" ,
             })
     
@@ -84,6 +83,7 @@ def add_sheet_values(data, tag, header, sheet_values):
         row['Correct Idea'] = True if row['Correct Idea'] else row['Hand On']
         row['Need Review']  = True if row['Need Review'] == 'Y' else False
         row['Completed count'] = int(row['Completed count']) if row['Completed count'] else 1
+        row['Review Reason'] = "" if not row['Review Reason'] else row['Review Reason']
         
         try:
             #Add to data
@@ -96,6 +96,7 @@ def add_sheet_values(data, tag, header, sheet_values):
                     'difficulty': row['Level'],
                     'status': "",
                     'count': row['Completed count'],
+                    'hint': row['Review Reason'],
                     'topics': [row['Type']] if row['Type'] else [],
                     'tags': [tag] if tag else [],
                     'comments': [],
@@ -106,7 +107,6 @@ def add_sheet_values(data, tag, header, sheet_values):
                 if len(data_item['comments']):
                     data_item['comments'][-1]['date'] = data_item['date']
                     data_item['comments'][-1]['status'] = data_item['status']
-                    data_item['comments'][-1]['state'] = row['Review Reason']
                 data_item['status'] = get_status(data_item, row)
             else:
                 #Update topics
@@ -126,6 +126,7 @@ def add_sheet_values(data, tag, header, sheet_values):
                             prev_cmt_date.append([i, cmt['date']])
                     data_item['count'] = row['Completed count']
                     data_item['date'] = row['Date']
+                    data_item['hint'] = row['Review Reason']
                     data_item['comments'] = []
                     add_comments(data_item, row)
                     for i, prev_date in prev_cmt_date:
@@ -134,7 +135,6 @@ def add_sheet_values(data, tag, header, sheet_values):
                     if len(data_item['comments']):
                         data_item['comments'][-1]['date'] = data_item['date']
                         data_item['comments'][-1]['status'] = data_item['status']
-                        data_item['comments'][-1]['state'] = row['Review Reason']
                     data_item['status'] = get_status(data_item, row)
             if 'ZhiHu TimothyL 2nd loop' in data[id]['tags'] and 'ZhiHu TimothyL 1st loop' not in data[id]['tags']:
                 data[id]['tags'].append('ZhiHu TimothyL 1st loop')

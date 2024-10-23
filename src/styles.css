@@ -90,12 +90,16 @@ li.CommentList {
   font-weight: bold;
 }
 
-.CommentBlockState{
+.CommentBlockStatus{
   color:#888888;
   font-size: x-small;
 }
 
 .title{
+  text-align: left;
+}
+
+.hint{
   text-align: left;
 }
 

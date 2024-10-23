@@ -87,10 +87,10 @@ function TableRow({ data, tableStruct, showComment, onRowClick }) {
     const attr = col.name;
     const Component = col.component;
     const colData = Array.isArray(data[attr]) ? data[attr] : [data[attr]];
-    onRowClick = onLabelClick ? null : onRowClick;
-    // onClick={() => onSelect(name, x)
+    const onRowClick1 = onLabelClick ? null : onRowClick;
+
     tds.push(
-      <td className={attr} key={attr} onClick={onRowClick}>
+      <td className={attr} key={attr} onClick={onRowClick1}>
         {colData.map((x, i) => (
           <Component
             txt={typeof x == "string" ? x : String(x)}
@@ -243,19 +243,18 @@ function getInitialData() {
       difficulty: "Easy",
       status: "",
       count: 0,
+      hint: "",
       topics: ["string", "array", "list"],
       tags: ["leet100", "blind75"],
       comments: [
         {
           date: "19/01/2022",
           comment: "Dont know how",
-          state: "No idea",
           status: "Read",
         },
         {
           date: "01/02/2022",
           comment: "Too easy lalalala",
-          state: "Well done",
           status: "Mastered",
         },
       ],
@@ -267,13 +266,13 @@ function getInitialData() {
       difficulty: "Medium",
       status: "",
       count: 0,
+      hint: "",
       topics: ["string"],
       tags: ["blind75"],
       comments: [
         {
           date: "12/11/2023",
           comment: "Blablabla",
-          state: "Not optimal",
           status: "Read",
         },
       ],
@@ -285,13 +284,13 @@ function getInitialData() {
       difficulty: "Hard",
       status: "",
       count: 0,
+      hint: "",
       topics: ["string"],
       tags: ["blind75"],
       comments: [
         {
           date: "12/11/2023",
           comment: "Blablabla",
-          state: "Not optimal",
           status: "Read",
         },
       ],
@@ -333,6 +332,7 @@ export default function App() {
       component: TagLabel,
       onClick: handleAddSelection,
     },
+    { name: "hint", headerTxt: "Hint", component: Label, onClick: null },
   ];
 
   const options0 = {
