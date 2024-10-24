@@ -350,8 +350,9 @@ function AddPageContent({
     handleEntityChange(entityTemp);
   }
 
-  function handleCommentEdit(comment) {
+  function handleCommentEdit(type, i, value) {
     const entityTemp = structuredClone(entity);
+    entityTemp.comments[i][type] = value;
     handleEntityChange(entityTemp);
   }
 

@@ -1,3 +1,5 @@
+import { EditableLabel } from "./EditableLabel";
+
 export function CommentList({
   data,
   editable = false,
@@ -5,6 +7,10 @@ export function CommentList({
   handleDelete = null,
 }) {
   if (!data) return;
+  function handleInputChange(type, i, event) {
+    handleEdit(type, i, event.target.value);
+  }
+
   return (
     <ul className="CommentList">
       {data.map((cmt, i) => (
@@ -14,7 +20,23 @@ export function CommentList({
             <label className="CommentBlockStatus">
               {cmt.status && `[${cmt.status}]`}
             </label>
-            <label className="CommentBlockComment">{cmt.comment}</label>
+            <EditableLabel
+              className="CommentBlockComment"
+              editComp={
+                <input
+                  className="CommentBlockComment"
+                  name={i}
+                  value={cmt.comment}
+                  onChange={(event) => handleInputChange("comment", i, event)}
+                  autoComplete="off"
+                  autoFocus
+                />
+              }
+              nonEditComp={
+                <label className="CommentBlockComment">{cmt.comment}</label>
+              }
+              enable={handleEdit != null}
+            />
           </div>
           {editable && (
             <div>

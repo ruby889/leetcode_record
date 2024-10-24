@@ -210,3 +210,12 @@ li.CommentList {
   background-position: center;
   background-size: 13px 13px;
 }
+
+input.CommentBlockComment{
+  /* width:100%; */
+  width: 300px;
+}
+
+label.CommentBlockComment{
+  cursor: text;
+}
