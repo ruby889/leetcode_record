@@ -103,7 +103,7 @@ function HintField({ label, inputValue, handleValueChange }) {
       <input
         name={label}
         value={inputValue}
-        onChange={handleValueChange}
+        onChange={(event) => handleValueChange(event.target.value)}
         autoComplete="off"
       />
     </td>
@@ -171,7 +171,12 @@ function LabelField({
         />
       ))}
       {showInput && (
-        <input name={label} onBlur={handleInputBlur} autoComplete="off"></input>
+        <input
+          name={label}
+          onBlur={handleInputBlur}
+          autoComplete="off"
+          autoFocus
+        ></input>
       )}
       <button className="LabelFieldAdd" onClick={handleClick}>
         &#43;
@@ -457,7 +462,7 @@ export default function AddPage({
     //Update date
     if (entityTemp.comments.length) {
       entityTemp.date = entityTemp.comments.at(-1).date;
-    } else {
+    } else if (entityTemp.date == "") {
       const date = new Date();
       entityTemp.date = `${date.getDate()}/${
         date.getMonth
@@ -470,7 +475,6 @@ export default function AddPage({
       : "";
 
     setEntity(entityTemp);
-    console.log(entityTemp);
     handleSave(entityTemp);
   }
 

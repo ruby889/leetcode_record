@@ -457,7 +457,26 @@ export default function App() {
     const id = parseInt(entity.title.split(".")[0]);
     const initDataTemp = structuredClone(initData);
     initDataTemp[id] = entity;
-    // setInitData(initDataTemp);
+    setInitData(initDataTemp);
+
+    //Update display data
+    const dataFreqTemp = structuredClone(dataFreq);
+    const displayDataTemp = structuredClone(displayData);
+    if (id in displayData) {
+      displayDataTemp[id] = structuredClone(entity);
+    } else {
+      //Add if it fulfill current filter requirement
+      for (const category in selected) {
+        for (const tag of selected[category]) {
+          if (!dataCategory[category][tag].includes(id)) return;
+        }
+      }
+      displayDataTemp[id] = structuredClone(entity);
+      if (Object.keys(selected).length)
+        dataFreqTemp[id] = id in dataFreqTemp ? dataFreqTemp[id] + 1 : 1;
+    }
+    setDataFreq(dataFreqTemp);
+    setDisplayData(displayDataTemp);
   }
 
   return (
