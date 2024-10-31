@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -60,6 +61,8 @@ def add_sheet_values(data, tag, header, sheet_values):
         #Use previous date if current date is empty
         if i > 0:
             row['Date'] = row['Date'] or prevDate
+            #Convert from single digit to double digit
+            row['Date'] = datetime.datetime.strptime(row['Date'], "%d/%m/%Y").strftime("%d/%m/%Y")
         prevDate = row['Date']
         
         #Convert type
