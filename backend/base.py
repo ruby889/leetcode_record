@@ -1,5 +1,5 @@
 from flask import Flask
-from readGoogleSheet import getLeetcodeData
+from backend.googleSheet import GoogleSheetV1
 from postgreDB import PostgreDB
 
 api = Flask(__name__)
@@ -9,5 +9,6 @@ def data():
     # db = PostgreDB('leetcodeRecord1', 'postgres', '1')
     # response_body = db.fetch_data_as_dict()
     # db.close()
-    response_body = getLeetcodeData()
+    gs = GoogleSheetV1()
+    response_body = gs.getLeetcodeData()
     return response_body

@@ -3,7 +3,7 @@ from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 import json
 import time
-from readGoogleSheet import getLeetcodeData
+from backend.googleSheet import GoogleSheetV1
 
 
 class PostgreDB():
@@ -131,7 +131,8 @@ if __name__ == "__main__":
     db = PostgreDB('leetcodeRecord', 'postgres', '1')
     db.clearDatabase()
     db.createTables('./schema.sql')
-    data = getLeetcodeData()
+    gs = GoogleSheetV1()
+    data = gs.getLeetcodeData()
     # cnt = 0
     for key,val in data.items():
         # cnt += 1
