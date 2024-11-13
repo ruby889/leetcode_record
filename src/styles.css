@@ -80,7 +80,7 @@ ul.CommentList{
 }
 
 li.CommentList {
-  /* text-align: left; */
+  text-align: left;
   margin: 0px 0px;
   display: flex;
   justify-content: space-between;
@@ -95,12 +95,18 @@ li.CommentList {
   font-size: x-small;
 }
 
-.title{
+.TableRow .title{
+  width: 30%;
   text-align: left;
 }
 
-.hint{
+.TableRow .hint{
+  width: 30%;
   text-align: left;
+}
+
+.TableRow .topics{
+  width: 150px;
 }
 
 .TopicLabel {
@@ -187,17 +193,6 @@ li.CommentList {
   right: 0;
   cursor: pointer;
   padding: 0px 3px;
-}
-
-.CommentEdit{
-  width: 20px;
-  height: 20px;
-  border-color: #d6d6d6;
-  background-color: transparent;
-  background-image: url("../public/images/pencil.png");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 13px 13px;
 }
 
 .CommentDelete{

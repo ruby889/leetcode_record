@@ -41,11 +41,6 @@ export function CommentList({
           {editable && (
             <div>
               <button
-                key={0}
-                className="CommentEdit"
-                onClick={handleEdit}
-              ></button>
-              <button
                 key={1}
                 className="CommentDelete"
                 onClick={() => handleDelete(i)}

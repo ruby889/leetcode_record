@@ -65,3 +65,18 @@ export function TagLabel({ txt, onLabelClick, handleDelete = null }) {
     </label>
   );
 }
+
+export function LabelList(component, txt_list, onLabelClick) {
+  console.log(component);
+  return (
+    <>
+      {/* {txt_list.map((x, i) => (
+        <component
+          txt={typeof x == "string" ? x : String(x)}
+          key={i}
+          onLabelClick={onLabelClick ? () => onLabelClick(attr, x) : null}
+        />
+      ))} */}
+    </>
+  );
+}

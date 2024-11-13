@@ -47,6 +47,7 @@ function TitleField({
     const val = event.target.value;
     updatePredictions(val);
     setInputValue(val);
+    handleChange(val);
   }
 
   function handleClick(item) {
@@ -274,7 +275,7 @@ function AddPageContent({
   statusSelectionList,
 }) {
   // const [date, setDate] = useState(new Date());
-  const [lastEdit, setLastEdit] = useState(new Date());
+  // const [lastEdit, setLastEdit] = useState(new Date());
   const titleSuggestionList = Object.entries(data).map(
     ([key, val]) => val.title
   );
@@ -286,23 +287,17 @@ function AddPageContent({
   //   handleEntityChange(entityTemp);
   // }
 
-  function handleLastEditChange(d) {
-    const entityTemp = structuredClone(entity);
-    entityTemp.last_edit = d.valueOf();
-    setLastEdit(d);
-    handleEntityChange(entityTemp);
-  }
+  // function handleLastEditChange(d) {
+  //   const entityTemp = structuredClone(entity);
+  //   entityTemp.last_edit = d.valueOf();
+  //   setLastEdit(d);
+  //   handleEntityChange(entityTemp);
+  // }
 
   function handleTitleChange(title) {
     let entityTemp = structuredClone(entity);
     if (titleSuggestionList.includes(title)) {
       const id = parseInt(title.split(".")[0]);
-      // const d = data[id];
-      // entityTemp.count = d.count;
-      // entityTemp.difficulty = d.difficulty;
-      // entityTemp.topics = d.topics;
-      // entityTemp.tags = d.tags;
-      // entityTemp.comments = d.comments;
       entityTemp = structuredClone(data[id]);
     }
     entityTemp.title = title;
@@ -452,12 +447,13 @@ export default function AddPage({
     comments: [],
   };
   const [entity, setEntity] = useState(init_entity);
+  const [lastEditUpdate, setLastEditUpdate] = useState(true);
 
   function handleSaveButtonClick() {
     //Check if title is valid
     const entityTemp = structuredClone(entity);
     const id = parseInt(entityTemp.title.split(".")[0]);
-    if (!entityTemp || !entityTemp.comments.length || id == NaN) return;
+    if (!entityTemp || isNaN(id)) return;
 
     //Update date
     if (entityTemp.comments.length) {
@@ -467,6 +463,11 @@ export default function AddPage({
       entityTemp.date = `${date.getDate()}/${
         date.getMonth
       }/${date.getFullYear()}`;
+    }
+
+    //Update last_edit
+    if (lastEditUpdate || !entityTemp.last_edit) {
+      entityTemp.last_edit = (Date.now() / 1000).toString();
     }
 
     //Update status
@@ -484,6 +485,11 @@ export default function AddPage({
 
   function handlePopupClose() {
     setEntity(init_entity);
+    setLastEditUpdate(true);
+  }
+
+  function handleLastEditTimeUpdate() {
+    setLastEditUpdate(!lastEditUpdate);
   }
 
   return (
@@ -508,6 +514,14 @@ export default function AddPage({
               difficultySelectionList={difficultySelectionList}
               statusSelectionList={statusSelectionList}
             />
+            <label>
+              <input
+                type="checkbox"
+                defaultChecked={lastEditUpdate}
+                onChange={handleLastEditTimeUpdate}
+              />
+              Update Last Edit Time
+            </label>
           </div>
           <div className="AddPageActions">
             <button

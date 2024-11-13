@@ -1,6 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import AddPage from "./AddPage";
-import { Label, DifficultyLabel, TopicLabel, TagLabel } from "./Labels";
+import {
+  Label,
+  DifficultyLabel,
+  TopicLabel,
+  TagLabel,
+  LabelList,
+} from "./Labels";
 import { DropdownCloseEvent, DropdownButton } from "./DropdownButton";
 import { CommentBlock } from "./CommentBlock";
 window.addEventListener("click", DropdownCloseEvent);
@@ -360,10 +366,10 @@ export default function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await fetch("/data");
-      const json = await data.json();
-      setInitData(json);
-      setDisplayData(json);
+      const response = await fetch("/data");
+      const jdata = await response.json();
+      setInitData(jdata);
+      setDisplayData(jdata);
     };
     fetchData().catch(console.error);
   }, []);
@@ -453,6 +459,18 @@ export default function App() {
     setDisplayData(structuredClone(initData));
   }
 
+  const updateBackendEntity = async (entity) => {
+    const response = await fetch(`http://localhost:5000/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(entity),
+    });
+    // const response_json = await response.json();
+    // console.log(response_json);
+  };
+
   function handleAddPageSave(entity) {
     const id = parseInt(entity.title.split(".")[0]);
     const initDataTemp = structuredClone(initData);
@@ -477,6 +495,7 @@ export default function App() {
     }
     setDataFreq(dataFreqTemp);
     setDisplayData(displayDataTemp);
+    updateBackendEntity({ [id]: entity }).catch(console.error);
   }
 
   return (

@@ -38,7 +38,7 @@ py -m venv env
 3. Install flask related packages
 
 ```
-pip install flask python-dotenv
+pip install -U flask flask-cors python-dotenv
 ```
 
 4. Install Google client library
