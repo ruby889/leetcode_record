@@ -70,7 +70,7 @@ function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
   );
 }
 
-function TableHeader({ name, onHeaderClick, headerSort }) {
+function TableHeader({ name, width, onHeaderClick, headerSort }) {
   function updateClassName(headerSort) {
     if (headerSort === 0) {
       return "default";
@@ -80,7 +80,12 @@ function TableHeader({ name, onHeaderClick, headerSort }) {
   }
   let orderName = updateClassName(headerSort);
   return (
-    <th scope="col" onClick={onHeaderClick} className={orderName}>
+    <th
+      scope="col"
+      onClick={onHeaderClick}
+      className={orderName}
+      width={String(width) + "px"}
+    >
       {name}
     </th>
   );
@@ -92,18 +97,27 @@ function TableRow({ data, tableStruct, showComment, onRowClick }) {
     const onLabelClick = col.onClick;
     const attr = col.name;
     const Component = col.component;
-    const colData = Array.isArray(data[attr]) ? data[attr] : [data[attr]];
     const onRowClick1 = onLabelClick ? null : onRowClick;
-
+    const width = col.width;
     tds.push(
       <td className={attr} key={attr} onClick={onRowClick1}>
-        {colData.map((x, i) => (
-          <Component
-            txt={typeof x == "string" ? x : String(x)}
-            key={i}
-            onLabelClick={onLabelClick ? () => onLabelClick(attr, x) : null}
+        {Array.isArray(data[attr]) ? (
+          <LabelList
+            Component={Component}
+            cell_width={width}
+            txt_list={data[attr]}
+            onLabelClick={onLabelClick ? (x) => onLabelClick(attr, x) : null}
           />
-        ))}
+        ) : (
+          <Component
+            txt={
+              typeof data[attr] == "string" ? data[attr] : String(data[attr])
+            }
+            onLabelClick={
+              onLabelClick ? () => onLabelClick(attr, data[attr]) : null
+            }
+          />
+        )}
       </td>
     );
   }
@@ -219,6 +233,7 @@ function Table({ data, tableStruct }) {
             <TableHeader
               key={i}
               name={col.headerTxt}
+              width={col.width}
               onHeaderClick={() => handleHeaderClick(i)}
               headerSort={headerSort[i]}
             />
@@ -251,7 +266,7 @@ function getInitialData() {
       count: 0,
       hint: "",
       topics: ["string", "array", "list"],
-      tags: ["leet100", "blind75"],
+      tags: ["leet100", "blind75", "blind75blind75blind75blind75blind75"],
       comments: [
         {
           date: "19/01/2022",
@@ -274,7 +289,7 @@ function getInitialData() {
       count: 0,
       hint: "",
       topics: ["string"],
-      tags: ["blind75"],
+      tags: ["leet111", "blind755"],
       comments: [
         {
           date: "12/11/2023",
@@ -292,7 +307,7 @@ function getInitialData() {
       count: 0,
       hint: "",
       topics: ["string"],
-      tags: ["blind75"],
+      tags: ["blind85"],
       comments: [
         {
           date: "12/11/2023",
@@ -315,30 +330,75 @@ function getInitialData() {
 }
 
 export default function App() {
+  const window_width = window.innerWidth;
+  const tag_width = parseInt((window_width * 0.3 - 3 * 60 - 40) / 2);
+  const cols_width = [
+    60,
+    parseInt(0.4 * window_width),
+    60,
+    60,
+    40,
+    tag_width,
+    tag_width,
+    parseInt(0.3 * window_width),
+  ];
   const tableStruct = [
-    { name: "date", headerTxt: "Date", component: Label, onClick: null },
-    { name: "title", headerTxt: "Title", component: Label, onClick: null },
+    {
+      name: "date",
+      headerTxt: "Date",
+      width: cols_width[0],
+      component: Label,
+      onClick: null,
+    },
+    {
+      name: "title",
+      headerTxt: "Title",
+      width: cols_width[1],
+      component: Label,
+      onClick: null,
+    },
     {
       name: "difficulty",
       headerTxt: "Difficulty",
+      width: cols_width[2],
       component: DifficultyLabel,
       onClick: null,
     },
-    { name: "status", headerTxt: "Status", component: Label, onClick: null },
-    { name: "count", headerTxt: "Count", component: Label, onClick: null },
+    {
+      name: "status",
+      headerTxt: "Status",
+      width: cols_width[3],
+      component: Label,
+      onClick: null,
+    },
+    {
+      name: "count",
+      headerTxt: "Count",
+      width: cols_width[4],
+      component: Label,
+      onClick: null,
+    },
     {
       name: "topics",
       headerTxt: "Topics",
+      width: cols_width[5],
       component: TopicLabel,
       onClick: handleAddSelection,
     },
     {
       name: "tags",
       headerTxt: "Tags",
+      width: cols_width[6],
       component: TagLabel,
       onClick: handleAddSelection,
     },
-    { name: "hint", headerTxt: "Hint", component: Label, onClick: null },
+    {
+      name: "hint",
+      headerTxt: "Hint",
+      width: cols_width[7],
+      component: Label,
+      onClick: null,
+    },
   ];
 
   const options0 = {

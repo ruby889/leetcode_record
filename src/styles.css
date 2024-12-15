@@ -96,17 +96,25 @@ li.CommentList {
 }
 
 .TableRow .title{
-  width: 30%;
+  /* width: 30%; */
   text-align: left;
 }
 
 .TableRow .hint{
-  width: 30%;
+  /* width: 30%; */
   text-align: left;
 }
 
-.TableRow .topics{
-  width: 150px;
+.TableRow .TagLabel{
+  white-space: nowrap; /* Prevents the text from wrapping */ 
+  overflow: hidden; /* Hides overflowed text */ 
+  text-overflow: ellipsis;
+}
+
+.TableRow .TopicLabel{
+  white-space: nowrap; /* Prevents the text from wrapping */ 
+  overflow: hidden; /* Hides overflowed text */ 
+  text-overflow: ellipsis;
 }
 
 .TopicLabel {
@@ -120,7 +128,6 @@ li.CommentList {
   border-radius: 35px;
   padding: 5px 5px;
 }
-
 /*Hoverable Dropdown Menu*/
 
 .Dropdown {

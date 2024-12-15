@@ -1,3 +1,7 @@
+import { useRef, useLayoutEffect, useState } from "react";
+import Popup from "reactjs-popup";
+import "./Labels.css";
+
 export function Label({ txt, handleDelete = null }) {
   return (
     <label className="Label">
@@ -38,9 +42,21 @@ export function DifficultyLabel({ txt, handleDelete = null }) {
   );
 }
 
-export function TopicLabel({ txt, onLabelClick, handleDelete = null }) {
+export function TopicLabel({
+  txt,
+  onLabelClick,
+  updateWidth = null,
+  handleDelete = null,
+}) {
+  const ref = useRef();
+  useLayoutEffect(() => {
+    if (ref.current && typeof updateWidth === "function") {
+      updateWidth(ref.current.offsetWidth);
+    }
+  }, []);
+
   return (
-    <label className="TopicLabel" onClick={onLabelClick}>
+    <label className="TopicLabel" onClick={onLabelClick} ref={ref}>
       {txt}
       {typeof handleDelete === "function" && (
         <span
@@ -52,9 +68,21 @@ export function TopicLabel({ txt, onLabelClick, handleDelete = null }) {
   );
 }
 
-export function TagLabel({ txt, onLabelClick, handleDelete = null }) {
+export function TagLabel({
+  txt,
+  onLabelClick,
+  updateWidth = null,
+  handleDelete = null,
+}) {
+  const ref = useRef();
+  useLayoutEffect(() => {
+    if (ref.current && typeof updateWidth === "function") {
+      updateWidth && updateWidth(ref.current.offsetWidth);
+    }
+  }, []);
+
   return (
-    <label className="TagLabel" onClick={onLabelClick}>
+    <label className="TagLabel" onClick={onLabelClick} ref={ref}>
       {txt}
       {typeof handleDelete === "function" && (
         <span
@@ -66,17 +94,43 @@ export function TagLabel({ txt, onLabelClick, handleDelete = null }) {
   );
 }
 
-export function LabelList(component, txt_list, onLabelClick) {
-  console.log(component);
+export function LabelList({ Component, cell_width, txt_list, onLabelClick }) {
+  const [totalChildWidth, setTotalChildWidth] = useState(0);
+  const handleUpdateWidth = (width) => {
+    setTotalChildWidth((prevWidth) => prevWidth + width);
+  };
+
+  const allComps = txt_list.map((x, i) => (
+    <Component
+      txt={typeof x == "string" ? x : String(x)}
+      key={i}
+      onLabelClick={onLabelClick ? () => onLabelClick(x) : null}
+      updateWidth={handleUpdateWidth}
+    />
+  ));
   return (
     <>
-      {/* {txt_list.map((x, i) => (
-        <component
-          txt={typeof x == "string" ? x : String(x)}
-          key={i}
-          onLabelClick={onLabelClick ? () => onLabelClick(attr, x) : null}
-        />
-      ))} */}
+      {totalChildWidth <= cell_width || allComps.length == 1 ? (
+        allComps
+      ) : (
+        <Popup
+          trigger={
+            <div>
+              <Component txt={"..."} onLabelClick={null} />
+            </div>
+          }
+          on={"hover"}
+          position="bottom left"
+        >
+          <div className="LabelListModal">
+            {allComps.map((x, i) => (
+              <div className="content" key={i}>
+                {x}
+              </div>
+            ))}
+          </div>
+        </Popup>
+      )}
     </>
   );
 }
