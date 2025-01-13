@@ -66,22 +66,6 @@ function TitleField({
           ))}
         </div>
       </Popup>
-      {/* <input
-        ref={inputRef}
-        name={label}
-        value={inputValue}
-        onChange={handleInputChange}
-        autoComplete="off"
-      />
-      {predictions.map((item, index) => (
-        <div
-          className="PredictionItem"
-          key={index + item}
-          onClick={() => handleClick(item)}
-        >
-          {item}
-        </div>
-      ))} */}
     </td>
   );
 }

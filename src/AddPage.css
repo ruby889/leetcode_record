@@ -46,6 +46,10 @@
   border: 1px solid #cfcece;
 }
 
+.PredictionItem {
+  cursor: default;
+}
+
 .PredictionItem:hover {
   color: blue;
 }
