@@ -33,6 +33,10 @@
   border: 1px solid #cfcece;
 }
 
+.AddPageTitleModal {
+  background: #f8f6ec;
+}
+
 .LabelField > .LabelFieldAdd {
   cursor: pointer;
   line-height: 20px;

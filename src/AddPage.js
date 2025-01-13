@@ -4,25 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./AddPage.css";
 import { TopicLabel, TagLabel } from "./Labels";
-import { CommentList, CommentBlock } from "./CommentBlock";
-
-// function DateField({ label, defaultDate, onDateChange }) {
-//   return (
-//     <td>
-//       <div>
-//         <label>{label}</label>
-//       </div>
-//       <DatePicker
-//         showIcon
-//         selected={defaultDate}
-//         startDate={defaultDate}
-//         endDate={null}
-//         dateFormat="dd/MM/yyyy"
-//         onChange={(date) => onDateChange(date)}
-//       />
-//     </td>
-//   );
-// }
+import { CommentList } from "./CommentBlock";
 
 function TitleField({
   label,
@@ -30,7 +12,6 @@ function TitleField({
   suggestionList = [],
   handleChange,
 }) {
-  const inputRef = useRef(null);
   const [inputValue, setInputValue] = useState(defaultValue);
   const [predictions, setPredictions] = useState([]);
   function updatePredictions(val) {
@@ -51,7 +32,6 @@ function TitleField({
   }
 
   function handleClick(item) {
-    inputRef.current.focus();
     updatePredictions("");
     setInputValue(item);
     handleChange(item);
@@ -62,7 +42,31 @@ function TitleField({
       <div>
         <label>{label}</label>
       </div>
-      <input
+      <Popup
+        trigger={
+          <input
+            name={label}
+            value={inputValue}
+            onChange={handleInputChange}
+            autoComplete="off"
+          />
+        }
+        on={"focus"}
+        position="bottom left"
+      >
+        <div className="AddPageTitleModal">
+          {predictions.map((item, index) => (
+            <div
+              className="PredictionItem"
+              key={index + item}
+              onClick={() => handleClick(item)}
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </Popup>
+      {/* <input
         ref={inputRef}
         name={label}
         value={inputValue}
@@ -77,7 +81,7 @@ function TitleField({
         >
           {item}
         </div>
-      ))}
+      ))} */}
     </td>
   );
 }
@@ -274,25 +278,9 @@ function AddPageContent({
   difficultySelectionList,
   statusSelectionList,
 }) {
-  // const [date, setDate] = useState(new Date());
-  // const [lastEdit, setLastEdit] = useState(new Date());
   const titleSuggestionList = Object.entries(data).map(
     ([key, val]) => val.title
   );
-
-  // function handleDateChange(d) {
-  //   const entityTemp = structuredClone(entity);
-  //   entityTemp.date = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()}`;
-  //   setDate(d);
-  //   handleEntityChange(entityTemp);
-  // }
-
-  // function handleLastEditChange(d) {
-  //   const entityTemp = structuredClone(entity);
-  //   entityTemp.last_edit = d.valueOf();
-  //   setLastEdit(d);
-  //   handleEntityChange(entityTemp);
-  // }
 
   function handleTitleChange(title) {
     let entityTemp = structuredClone(entity);
@@ -495,7 +483,7 @@ export default function AddPage({
   return (
     <Popup
       className="AddPagePopup"
-      trigger={<button className="button"> Add </button>}
+      trigger={<button className="button"> Add / Delete Comment </button>}
       onClose={handlePopupClose}
       modal
       nested
@@ -505,7 +493,7 @@ export default function AddPage({
           <button className="close" onClick={close}>
             &times;
           </button>
-          <div className="header"> Add Comment </div>
+          <div className="header"> Add / Delete Comment </div>
           <div className="content">
             <AddPageContent
               data={data}

@@ -64,7 +64,7 @@ function FilterDiv({ options, selected, onSelect, onRemove, onReset }) {
       </div>
       <FilteredDisplay selected={selected} onRemove={onRemove} />
       <button className="ResetBnt" onClick={onReset}>
-        Reset
+        Reset Filter
       </button>
     </div>
   );
@@ -567,7 +567,7 @@ export default function App() {
         difficultySelectionList={options0.difficulty}
         statusSelectionList={options0.status}
       />
-      <label> {"Displayed:" + Object.keys(displayData).length}</label>
+      <label> {"Rows: " + Object.keys(displayData).length}</label>
       <FilterDiv
         options={options}
         selected={selected}
