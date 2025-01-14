@@ -1,6 +1,9 @@
 # leetcode_record
 
-Website for visualize and review leetcode progress. **React** is used for frontend with **Flask** as backend.
+Website for visualize and review leetcode progress. **React** is used for frontend with **Flask** as backend.  
+***Overview:***
+[![Video Title](https://github.com/ruby889/leetcode_record/blob/main/images/overview.jpg)](https://youtu.be/rooFXgYY6HA)
+https://youtu.be/rooFXgYY6HA
 
 ## Install dependencies for React
 
